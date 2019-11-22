@@ -1,0 +1,16 @@
+// 环境的切换
+
+let baseUrl = ''; 
+
+if (process.env.VUE_APP_CURRENTMODE == 'development') {    
+    // baseUrl = 'http://10.234.19.98:8001';
+    baseUrl = 'http://10.234.16.69:10001';
+} else if (process.env.VUE_APP_CURRENTMODE == 'qa') {    
+    baseUrl = '';
+} else if (process.env.VUE_APP_CURRENTMODE == 'production') {    
+    baseUrl = 'http://api.123dailu.com/';
+}
+
+export {
+	baseUrl
+}
