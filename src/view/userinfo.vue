@@ -298,7 +298,7 @@
                     </div>
                  </div>
                  <behavior-track v-show="activeIndex == '5'"></behavior-track>
-                 <business-info v-show="activeIndex == '4'"></business-info>
+                 <business-info :businessInfo='providerInfo' v-show="activeIndex == '4'"></business-info>
              </div>
              <div class="userinfo_right">
                  <span>操作</span>
@@ -417,6 +417,9 @@ export default {
     computed:{
         userInfo(){
             return this.$store.state.userInfo;
+        },
+        providerInfo(){
+            return this.$store.state.providerInfo;
         }
     },
     mounted(){
@@ -429,13 +432,13 @@ export default {
     methods:{
         // 获取用户信息
         getUserInfo(){
+            this.activeIndex = this.$route.query.activeIndex;
             if(!!this.userInfo){
-                if(!!this.userInfo.activeIndex){
-                    this.activeIndex = this.userInfo.activeIndex;
-                }
-                this.userId = this.userInfo.id;
+                console.log('ddddddd',this.userInfo)
+                this.userId = this.userInfo.id;              
             }
             this.$store.commit('saveUserInfo','');
+            this.$local.clear('providerInfo')
         },
 
         addressChange(arr) {

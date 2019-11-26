@@ -24,7 +24,7 @@ module.exports = {
         proxy: {
             "": {
               // target: "http://10.234.19.98:8001",
-              target:'http://10.234.16.69:10001',
+              target:'http://10.234.16.69:10004',
               changeOrigin: true,
               ws: true,
             },

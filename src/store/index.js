@@ -9,7 +9,8 @@ const state = {
 	shopDetail:'',
 	keywordInfo:{},   //关键字详情
 	relationKeyword:{},  //关联关键字详情
-	userInfo:{}
+	userInfo:{},
+	providerInfo:{}
 
 }
 

@@ -24,5 +24,11 @@ export default{
         // 保存用户信息
         state.userInfo =userInfo;
         local.set('userInfo',JSON.stringify(userInfo))
+    },
+
+    saveProviderInfo(state,providerInfo){
+        //保存服务商详情
+        state.providerInfo = providerInfo;
+        local.set('providerInfo',JSON.stringify(providerInfo))
     }
 }

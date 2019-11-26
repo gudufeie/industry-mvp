@@ -2,7 +2,7 @@
     <div>
         <el-tag
             :key="tag"
-            v-for="tag in relateKeywordList"
+            v-for="tag in tagsList"
             closable
             color='#fff'
             type = 'info'
@@ -13,7 +13,7 @@
         <el-button class="button-new-tag" size="small" @click="showInput">新增标签 +</el-button>
         <el-input 
             class="input-new-tag" 
-            v-model="relationName" 
+            v-model="tagName" 
             size="small" 
             v-if="inputVisible"
             placeholder="10个字以内"
@@ -22,6 +22,7 @@
             @blur="getTag">
         </el-input>
         <span class="newTag" v-if="inputVisible" style="margin-left:20px;" @click="tagDialogVisible = true">新增标签</span>
+        <span class="newTag cancel" v-if="inputVisible" style="margin-left:20px;" @click="inputVisible = false">取消</span>
 
         <!-- 新增标签 -->
         <el-dialog
@@ -62,13 +63,19 @@
     export default{
         data(){
             return {
-                relateKeywordList:['1','2','2'],
-                relationName:'',
+                tagsList:['1','2','3'],
+                tagName:'',
                 inputVisible:false,
                 tagDialogVisible:false,
                 firstCateList:[],
                 firstCate:''
             }
+        },
+        props:{
+            tags:String
+        },
+        mounted(){
+
         },
         methods:{
             handleClose(tag) {
@@ -82,7 +89,7 @@
             // 查询标签
             getTag(){
 
-            }
+            },
         }
     }
 </script>
@@ -106,9 +113,15 @@
         line-height: 60px;
         position: absolute;
     }
+    .cancel{
+        margin-left: 90px !important;
+    }
     .newTag:hover{
         text-decoration: underline;
         cursor: pointer;
+    }
+    .quit{
+        margin-left: 90px;
     }
     .el-dialog__wrapper /deep/ .el-dialog__header{
         border-bottom: 1px solid #cccccc !important;

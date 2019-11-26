@@ -109,7 +109,7 @@
             </el-menu>
         </el-col>
         </el-row>
-        <el-row class="tac">
+        <el-row class="tac" v-show="false">
         <el-col :span="24">
             <el-menu
             default-active="2"
@@ -128,7 +128,7 @@
             </el-menu>
         </el-col>
         </el-row>
-        <el-row class="tac">
+        <el-row class="tac" v-show="false">
         <el-col :span="24">
             <el-menu
             default-active="2"
@@ -147,7 +147,7 @@
             </el-menu>
         </el-col>
         </el-row>
-        <el-row class="tac">
+        <el-row class="tac" v-show="false">
         <el-col :span="24">
             <el-menu
             default-active="2"
