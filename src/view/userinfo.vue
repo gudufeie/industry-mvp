@@ -428,13 +428,13 @@ export default {
             this.showEdit[i] = false;
             this.showBtn[i] = false;
         }
+        
     },
     methods:{
         // 获取用户信息
         getUserInfo(){
             this.activeIndex = this.$route.query.activeIndex;
             if(!!this.userInfo){
-                console.log('ddddddd',this.userInfo)
                 this.userId = this.userInfo.id;              
             }
             this.$store.commit('saveUserInfo','');

@@ -6,7 +6,7 @@
             <el-row type="flex" class="row-bg" justify="space-between">
                 <el-col :span="12">
                     <div class="grid-content bg-purple">
-                        <span>店铺名称 : </span>
+                        <span class="title">店铺名称 : </span>
                         <span class="tip-wrap">
                             <el-input 
                                 @input="getShopName" 
@@ -20,7 +20,7 @@
                 </el-col>
                 <el-col :span="12">
                     <div class="grid-content bg-purple-light">
-                        <span>入驻平台：</span>
+                        <span class="title">入驻平台：</span>
                         <span>
                             <el-select v-model="settlein" placeholder="请选择">
                                 <el-option
@@ -37,24 +37,17 @@
                 <el-row type="flex" class="row-bg" justify="space-between">
                 <el-col :span="24">
                     <div class="grid-content bg-purple business-cate">
-                        <span>经营类目 : </span>
+                        <span class="title">经营类目 : </span>
                         <el-button type="primary" size='mini' style="float:right;" @click="dialogVisible = true">编辑</el-button>
                     </div>
                 </el-col>
             </el-row>
-            <el-row type="flex" class="row-bg" justify="space-between">
+            <el-row type="flex" class="row-bg" justify="space-between" v-for="item in allCateList">
                 <el-col :span="24">
                     <div class="grid-content bg-purple">
-                        <span>数据采集设备 : </span>
-                        <span>传感器、网关、数据采集卡、工业通讯录模块、传感器、网关、数据采集卡、工业通讯录模块、数据采集卡、工业通讯录模块（二级类目）</span>
-                    </div>
-                </el-col>
-            </el-row>
-            <el-row type="flex" class="row-bg" justify="space-between">
-                <el-col :span="24">
-                    <div class="grid-content bg-purple">
-                        <span>数据采集设备 : </span>
-                        <span>传感器、网关、数据采集卡、工业通讯录模块、传感器、网关、数据采集卡、工业通讯录模块、数据采集卡、工业通讯录模块（二级类目）</span>
+                        <span style="margin-right:20px;">{{item.categoryOneName}}(一级类目) : </span>
+                        <span v-for="secondCate in item.childCategorys">{{secondCate.categoryOneName}}、</span>
+                        <span>(二级类目)</span>
                     </div>
                 </el-col>
             </el-row>
@@ -62,15 +55,16 @@
                 <el-col :span="24">
                     <div class="grid-content bg-purple">
                         <p>
-                            擅长 : <tags-add :tags="special" style="display:inline-block;margin-left:10px;"></tags-add>
+                            <span class="title">擅长 : </span>
+                            <tags-add @getNewTags="getNewTags" :tags="special" style="display:inline-block;margin-left:28px;"></tags-add>
                         </p>
                     </div>
                 </el-col>
             </el-row>
-            <el-row type="flex" class="row-bg" justify="space-between">
+            <!-- <el-row type="flex" class="row-bg" justify="space-between">
                 <el-col :span="24">
                     <div class="grid-content bg-purple">
-                        <span>联系方式 : </span>
+                        <span class="title">联系方式 : </span>
                         <span>
                             <el-input 
                                 class="phone-input"
@@ -89,11 +83,11 @@
                         </p>
                     </div>
                 </el-col>
-            </el-row>
+            </el-row> -->
             <el-row  class="row-bg" justify="space-between">
                 <el-col :span="24">
                     <div class="grid-content bg-purple">
-                        <span style="line-height:120px;">店铺介绍 : </span> 
+                        <span class="title" style="line-height:120px;">店铺介绍 : </span> 
                         <el-input type="textarea" placeholder="请输入" cols="30" rows="5" v-model="storeProfile"></el-input>
                     </div>
                 </el-col>
@@ -153,7 +147,7 @@
                     label="商品价格">
                         <template slot-scope="{row,$index}">
                             <span v-if="!!!productShow[$index]">{{row.productPrice}}</span>
-                            <el-input v-if="!!productShow[$index]" v-model="row.productPrice"></el-input>
+                            <el-input v-if="!!productShow[$index]" v-model="row.productPrice" @input="validatePrice(row.productPrice)"></el-input>
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -216,14 +210,13 @@
                     label="价格">
                         <template slot-scope="{row,$index}">
                             <span v-if="!!!serviceShow[$index]">{{row.servicePrice}}</span>
-                            <el-input v-if="!!serviceShow[$index]" v-model="row.servicePrice"></el-input>
+                            <el-input v-if="!!serviceShow[$index]" v-model="row.servicePrice" @input="validatePrice(row.servicePrice)"></el-input>
                         </template>
                     </el-table-column>
                     <el-table-column
                     label="发布时间">
-                        <template slot-scope="{row,$index}">
-                            <span v-if="!!!serviceShow[$index]">{{row.releaseTime}}</span>
-                            <el-input v-if="!!serviceShow[$index]" v-model="row.releaseTime"></el-input>
+                        <template slot-scope="{row}">
+                            <span>{{row.releaseTime}}</span>
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -278,7 +271,8 @@
                     label="方案报价">
                         <template slot-scope="{row,$index}">
                             <span v-if="!!!solutionShow[$index]">{{row.solutionPrice}}</span>
-                            <el-input v-if="!!solutionShow[$index]" v-model="row.solutionPrice"></el-input>
+                            <el-input v-if="!!solutionShow[$index]" v-model="row.solutionPrice" @input="validatePrice(row.solutionPrice)"></el-input>
+                            <span v-if="!!solutionShow[$index]">{{priceTip}}</span>
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -295,7 +289,7 @@
                             <el-button size="mini" v-if="!!solutionBtnShow[$index]" @click="solutionEditOk(row,$index)">确定</el-button>
                             <el-button size="mini" type="success" v-show="row.enabled == '1'" @click="solutionOnOrOut(row,$index)">启用</el-button>
                             <el-button size="mini" v-show="row.enabled == '0'" style="background:#fff;color:#000;" @click="solutionOnOrOut(row,$index)">下线</el-button>
-                            <el-button size="mini" type="danger" @click="solutionDelete(row,$index)">删除</el-button>
+                            <el-button size="mini" type="danger" @click="deleteSolution(row,$index)">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -338,7 +332,7 @@
                 </div>
             </div>
             <span slot="footer" class="dialog-footer">
-                <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+                <el-button type="primary" @click="submitCate">确 定</el-button>
                 <el-button @click="dialogVisible = false">取 消</el-button>
             </span>
         </el-dialog>
@@ -349,7 +343,8 @@ import TagsAdd from "./tagsAdd";
 import { getBusinessInfo, getProductCount, updateProduct, loadPublishProduct,
         productOnOrOutline, productDelete, addStore, loadAllCateList, loadServiceList,
         getServiceCount, serviceOnOutline, deleteService, solutionOnOutline,
-        solutionDelete, solutionCount, loadSolutionList } from "../service/getData"
+        solutionDelete, solutionCount, loadSolutionList, solutionUpdate, serviceUpdate,
+        updateStore } from "../service/getData"
 
 export default{
     data(){
@@ -377,12 +372,8 @@ export default{
             firstSelected:[],
             secondSelected:[],
             productList:[],      //发布的产品
-            serviceList:[     //发布的服务
-                {id:'1',name:11111,describe:'fsdfsd',price:'11.5元',time:'2019-11-16',state:1}
-            ],
-            solutionList:[
-                {id:1,name:'数据采集方案',describe:'解决数据采集问题',price:'11.5元',time:'2015-11-25',state:1}
-            ],
+            serviceList:[],     //发布的服务
+            solutionList:[],
             businessId:'',
             special:'',
             productShow:[],
@@ -399,7 +390,11 @@ export default{
             serviceTotal:0,
             solutionTotal:0,
             solutionSell:0,
-            solutionOutline:0
+            solutionOutline:0,
+            priceTip:'',
+            allCateList:[],
+            parentCategorys:[],
+            shopId:''
         }
     },
     props:{
@@ -411,11 +406,12 @@ export default{
         }
 
         // 获取供应商详细信息
-        if(!!this.businessInfo){
+        if(this.businessInfo){
             this.businessId = this.businessInfo.id;
+            this.shopId = this.businessInfo.shopId;
             let params = {
                 businessId: this.businessId,
-                shopId: this.businessId
+                shopId: this.businessInfo.shopId
             }
             getBusinessInfo(params).then(res=>{
                 if(!!res.data[0]){
@@ -423,6 +419,7 @@ export default{
                     this.settlein =res.data[0].settlein;
                     this.storeProfile = res.data[0].storeProfile;
                     this.special = res.data[0].special;
+                    this.allCateList = res.data[0].parentCategorys;
                 }
 
             })
@@ -432,6 +429,7 @@ export default{
             this.loadServiceCount();
             this.loadSolutionCount();
             this.getSolutionList();
+            this.$store.commit('saveProviderInfo',"")
         }
 
         // 产品列表显示初始化
@@ -501,6 +499,7 @@ export default{
             if(this.firstCheckedList[index] == true){
                 this.firstSelected.push(this.firstCateList[index]);
                 this.secondCateList = this.secondCateList.concat(this.firstCateList[index].childrenList)
+
             }else{
                 var newList = [];
                 for(var i in this.secondCateList){
@@ -528,6 +527,32 @@ export default{
                     }
                 } 
             }
+
+        },
+        
+        // 提交类目
+        submitCate(){
+            for(var item of this.firstSelected){
+                var firstCate = {
+                    businessId: this.businessId,
+                    bussinessShopId: this.shopId,
+                    categoryOneId: item.id,
+                    categoryOneName: item.categoryName,
+                    childCategorys:[]
+                }
+                for(var secondCate of this.secondSelected){
+                    var cateDict = {};
+                    if(item.id == secondCate.parentId){
+                        cateDict['categoryTwoId'] = secondCate.id;
+                        cateDict['categoryOneName'] = secondCate.categoryName;
+                        firstCate.childCategorys.push(cateDict);
+                    }
+
+                }
+                this.parentCategorys.push(firstCate)
+            }
+            this.allCateList = this.parentCategorys;
+            this.dialogVisible = false;
         },
 
         // 新增电话
@@ -554,8 +579,36 @@ export default{
         
         // 保存修改信息
         save(){
-            console.log('hhhhhhh',)
-            // addBussinessService
+            let params = {
+                businessId: '1',
+                id: this.shopId,
+                parentCategorys: this.parentCategorys,
+                settlein: this.settlein,
+                special: this.special,
+                storeName: this.storeName,
+                storeProfile: this.storeProfile
+            }
+            if(!!this.businessId){
+                 updateStore(params).then(res=>{
+                    if(res.code == 200){
+                        this.$message.success('修改成功');
+                        this.getSolutionList();
+                    }
+                    else{
+                        this.$message.warning('修改失败')
+                    }
+                })
+            }else{
+                 addStore(params).then(res=>{
+                    if(res.code == 200){
+                        this.$message.success('添加成功');
+                        this.getSolutionList();
+                    }
+                    else{
+                        this.$message.warning('添加失败')
+                    }
+                })
+            }
         },
 
         // 取消返回上一页
@@ -624,12 +677,20 @@ export default{
             this.$set(this.serviceBtnShow,index,true)
         },
 
-        //  服务确定添加
+        //  服务确定修改
         serviceEditOk(row,index){
             this.serviceShow[index] = false;
             this.serviceBtnShow[index]= false;
             this.$set(this.serviceShow,index,false)
             this.$set(this.serviceBtnShow,index,false)
+            serviceUpdate(this.serviceList[index]).then(res=>{
+                if(res.code && res.code == 200){
+                    this.$message.success('修改成功');
+                    this.getServiceList();
+                }else{
+                    this.$message.warning('修改失败')
+                }
+            })
         },
         
         // 服务上下线
@@ -638,7 +699,6 @@ export default{
                 id: row.id,
                 enabled: Math.abs(parseInt(row.enabled)-1)
             }
-            console.log('sssss',params,row.enabled)
             serviceOnOutline(params).then(res=>{
                 if(res.code == 200){
                     this.loadServiceCount();
@@ -670,6 +730,7 @@ export default{
             });
         },
 
+        // 获取解决方案列表
         getSolutionList(){
             let params ={
                 businessId: this.businessId,
@@ -703,22 +764,58 @@ export default{
             this.$set(this.solutionBtnShow,index,true)
         },
 
-        //  解决方案确定添加
+        //  解决方案确定修改
         solutionEditOk(row,index){
             this.solutionShow[index] = false;
             this.solutionBtnShow[index]= false;
             this.$set(this.solutionShow,index,false)
             this.$set(this.solutionBtnShow,index,false)
+            solutionUpdate(this.solutionList[index]).then(res=>{
+                if(res.code == 200){
+                    this.$message.success('修改成功');
+                    this.getSolutionList();
+                }
+                else{
+                    this.$message.warning('修改失败')
+                }
+            })
         },
         
         // 解决方案上下线
         solutionOnOrOut(row,index){
-            
+            let params = {
+                id: row.id,
+                enabled: Math.abs(parseInt(row.enabled)-1)
+            }
+            solutionOnOutline(params).then(res=>{
+                if(res.code == 200){
+                    this.getSolutionList();
+                    this.loadSolutionCount();
+                }else{
+                    this.$message.warning(res.msg)
+                }
+            })
         },
 
         // 解决方案删除
-        solutionDelete(row,index){
-
+        deleteSolution(row,index){
+            this.$confirm('此操作将永久删除该解决方案, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                solutionDelete({id:row.id}).then(res=>{
+                    if(res.code == 200){
+                        this.$message.success('删除成功');
+                        this.getProductList();
+                        this.getProductCount();
+                    }else{
+                        this.$message.warning('删除失败');
+                    }
+                })
+            }).catch(() => {
+                this.$message.info('已取消删除');          
+            });
         },
 
         // 验证联系方式
@@ -751,6 +848,20 @@ export default{
                     this.serviceOutline = res.data.outCount;
                 }
             })
+        },
+
+        // 验证价格
+        validatePrice(price){
+            this.$rules.validatePrice(price).then(res=>{
+                this.priceTip = res;
+            })
+        },
+
+        getNewTags(newTags,id){
+            this.special = newTags;
+            if(this.special.length > 0){
+                this.special = this.special.substring(0,this.special.length - 1);
+            }
         }
     },
     components:{
@@ -898,6 +1009,9 @@ export default{
         right: 40%;
         top: 95%;
         color:red;
+    }
+    .title{
+        color:#999999;
     }
 </style>
 <style lang="less">

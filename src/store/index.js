@@ -10,7 +10,9 @@ const state = {
 	keywordInfo:{},   //关键字详情
 	relationKeyword:{},  //关联关键字详情
 	userInfo:{},
-	providerInfo:{}
+	providerInfo:{},     //服务商信息
+	productInfo:{},      //产品信息
+	solutionInfo:{}
 
 }
 

@@ -171,6 +171,32 @@ export const productDelete = (params) =>{
     return post(baseUrl + '/businessproudct/delete', params)
 }
 
+// 产品详情
+// params ={
+//     id:string     产品ID
+// }
+export const loadProductDetail = (params) =>{
+    return post(baseUrl + '/businessproudct/info', params)
+}
+
+
+// 新增产品
+// params ={
+//     id:string     产品ID
+// }
+export const productAdd = (params) =>{
+    return postList(baseUrl + '/businessproudct/save', params)
+}
+
+
+// 新增产品
+// params ={
+//     id:string     产品ID
+// }
+export const productEdit = (params) =>{
+    return postList(baseUrl + '/businessproudct/edit', params)
+}
+
 
 // ----------------------------------------------商家店铺-------------------------------------------------
 // 服务商店铺添加
@@ -178,7 +204,15 @@ export const productDelete = (params) =>{
 //     
 // }
 export const addStore = (params) =>{
-    return post(baseUrl + '/businessshop/save', params)
+    return postList(baseUrl + '/businessshop/save', params)
+}
+
+// 服务商店铺修改
+// params ={
+//     
+// }
+export const updateStore = (params) =>{
+    return postList(baseUrl + '/businessshop/edit', params)
 }
 
 
@@ -213,6 +247,12 @@ export const getServiceCount = (params) =>{
 // }
 export const serviceOnOutline = (params) =>{
     return post(baseUrl + '/businessService/upline', params)
+}
+
+// 发布的服务修改
+// params = object
+export const serviceUpdate = (params) =>{
+    return postList(baseUrl + '/businessService/edit', params)
 }
 
 
@@ -253,4 +293,67 @@ export const loadSolutionList = (params) =>{
     return postList(baseUrl + '/businesssolution/list', params)
 }
 
+// 解决方案修改
+// params = {
+//       id:string,   解决方案ID 
+//       solutionName: string,
+//       solutionPrice: string,
+//       solutionDescription:string
+// }
+export const solutionUpdate = (params) =>{
+    return postList(baseUrl + '/businesssolution/edit', params)
+}
 
+// 解决方案详情
+// params = {
+//       id:string,   解决方案ID 
+// }
+export const loadSolutionDetail = (params) =>{
+    return post(baseUrl + '/businesssolution/info', params)
+}
+
+// -------------------------------------------产品库--------------------------------------
+// 产品库查询
+// params = {}
+export const loadProductList = (params) =>{
+    return postList(baseUrl + '/businessproudct/list', params)
+}
+
+
+// -----------------------------------------关键词-------------------------------------------
+// -------------------------------------------产品库--------------------------------------
+// 标签快速新增
+// params = {
+//     {
+//         categoryOneId: "string",
+//         categoryOneName: "string",
+//         categoryTwoId: "string",
+//         categoryTwoName: "string",
+//         keyWordName: "string"
+//     }
+// }
+export const tagsAdd = (params) =>{
+    return postList(baseUrl + '/keyword/add', params)
+}
+
+// 标签快速新增
+// params = {
+    // categoryOneId:'',
+    // categoryTwoId:'',
+//     keyWordName:string
+//     }
+export const searchTag = (params) =>{
+    return post(baseUrl + '/keyword/findkeyword', params)
+}
+
+
+// ------------------------------------------服务商--------------------------------
+// 新增商家
+// params = {
+    // businessName: "string",
+    // contact: "string",
+    // id: "string"
+//     }
+export const businessAdd = (params) =>{
+    return postList(baseUrl + '/business/save', params)
+}

@@ -72,7 +72,21 @@ let rules = {
   }else{
     callback('');
   }
-}
+  },
+
+  validatePrice(value,callback){
+    if(value !== ""){
+      var reg= /^(?:0\.\d{0,1}[1-9]|(?!0)\d{1,6}(?:\.\d{0,1}[1-9])?)$/;
+      if(!reg.test(value)){
+        callback('请输入正确的价格');
+      }else{
+        callback('');
+      }
+    }else{
+      callback('价格不能为空');
+    }
+  }
+
 }
 export default rules
 

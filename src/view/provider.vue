@@ -156,16 +156,16 @@
                     </el-table>
                     <div class="block">
                         <el-pagination
-                        background
-                        @size-change="handleSizeChange"
-                        @current-change="handleCurrentChange"
-                        :current-page="pageNum"
-                        :page-sizes="[10, 25, 50]"
-                        :page-size="pageSize"
-                        layout="total, sizes, prev, pager, next, jumper"
-                        :total="pageTotal"
-                        prev-text="上一页"
-                        next-text="下一页">
+                            background
+                            @size-change="handleSizeChange"
+                            @current-change="handleCurrentChange"
+                            :current-page="pageNum"
+                            :page-sizes="[10, 25, 50]"
+                            :page-size="pageSize"
+                            layout="total, sizes, prev, pager, next, jumper"
+                            :total="pageTotal"
+                            prev-text="上一页"
+                            next-text="下一页">
                         </el-pagination>
                     </div>
                 </div>
@@ -217,6 +217,16 @@ export default {
         })
     },
     methods:{
+        // 更改分页数量
+        handleSizeChange(){
+
+        },
+
+        // 换页
+        handleCurrentChange(page){
+            this.pageNum = page;
+            this.getBusinessList();
+        },
         // 查询服务商库列表
         getBusinessList(){
             let params = {
@@ -231,7 +241,6 @@ export default {
             }
             loadBusinessList(params).then(data=>{
                 this.pageSize = data.data.pageSize;
-                this.pageNum = data.data.pageNum;
                 this.pageTotal = data.data.totalCount;
                 this.tableData = data.data.dataList;
             })

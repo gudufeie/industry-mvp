@@ -30,5 +30,15 @@ export default{
         //保存服务商详情
         state.providerInfo = providerInfo;
         local.set('providerInfo',JSON.stringify(providerInfo))
+    },
+
+    saveProductInfo(state,productInfo){
+        // 保存产品信息
+        state.productInfo = productInfo;
+    },
+
+    saveSolutionInfo(state,solutionInfo){
+        // 保存产品信息
+        state.solutionInfo = solutionInfo;
     }
 }

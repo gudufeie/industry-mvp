@@ -24,12 +24,12 @@
             <el-col :span="5">
                 <div class="grid-content bg-purple search-bar">
                     <span>一级类目</span>
-                    <el-select v-model="value" placeholder="请选择">
-                        <el-option
-                        v-for="item in options"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
+                    <el-select v-model="categoryOneId" clearable placeholder="请选择" @change="getFirstCateId">
+                        <el-option            
+                        v-for="item in firstCateList"
+                        :key="item.id"
+                        :label="item.categoryName"
+                        :value="item.id">
                         </el-option>
                     </el-select>
                 </div>
@@ -37,12 +37,12 @@
             <el-col :span="5">
                 <div class="grid-content bg-purple search-bar">
                     <span>二级类目</span>
-                    <el-select v-model="value" placeholder="请选择">
+                    <el-select v-model="categoryTwoId" placeholder="请选择" clearable>
                         <el-option
-                        v-for="item in options"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
+                        v-for="item in secondCateList"
+                        :key="item.id"
+                        :label="item.categoryName"
+                        :value="item.id">
                         </el-option>
                     </el-select>
                 </div>
@@ -50,9 +50,9 @@
             <el-col :span="5">
                 <div class="grid-content bg-purple search-bar">
                     <span>产品来源</span>
-                    <el-select v-model="value" placeholder="请选择">
+                    <el-select v-model="productOrigin" placeholder="请选择">
                         <el-option
-                        v-for="item in options"
+                        v-for="item in productOriginList"
                         :key="item.value"
                         :label="item.label"
                         :value="item.value">
@@ -60,20 +60,7 @@
                     </el-select>
                 </div>
             </el-col>
-            <el-col :span="4" class="origin">
-                <div class="grid-content bg-purple search-bar">
-                    <span>产品来源</span>
-                    <el-select v-model="value" placeholder="请选择">
-                        <el-option
-                        v-for="item in options"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                        </el-option>
-                    </el-select>
-                </div>
-            </el-col>
-            <el-col :span="5">
+            <el-col :span="9">
                 <div class="grid-content bg-purple search">
                     <el-input v-model="searchName" placeholder="id/名称/标签" style="width:80%"></el-input>
                     <el-button type="primary" @click="search">搜索</el-button>
@@ -94,32 +81,34 @@
                         width="60">
                         </el-table-column>
                         <el-table-column
-                        prop="name"
+                        prop="id"
                         label="产品ID"
                         width="80">
                         </el-table-column>
                         <el-table-column
-                        prop="address"
                         label="产品图片"
                         width="100">
+                            <template slot-scope="{row}">
+                                <img style="width:100%;height:100%" :src="row.productPic" alt="">
+                            </template>
                         </el-table-column>
                         <el-table-column
-                        prop="name"
+                        prop="productName"
                         label="产品名称"
-                        width="60">
+                        width="120">
                         </el-table-column>
                         <el-table-column
-                        prop="name"
+                        prop="productPrice"
                         label="产品价格"
                         width="80">
                         </el-table-column>
                         <el-table-column
-                        prop="name"
+                        prop="categoryOneName"
                         label="一级类目"
                         width="100">
                         </el-table-column>
                         <el-table-column
-                        prop="name"
+                        prop="categoryTwoName"
                         label="二级类目">
                         </el-table-column>
                         <el-table-column
@@ -127,38 +116,40 @@
                         label="标签">
                         </el-table-column>
                         <el-table-column
-                        prop="name"
+                        prop="productSource"
                         label="产品来源"
                         width="80">
                         </el-table-column>
                         <el-table-column
-                        prop="name"
+                        prop="businessName"
                         label="商家名称"
-                        width="60">
+                        width="120">
                         </el-table-column>
                         <el-table-column
-                        prop="name"
+                        prop="address"
                         label="所在地"
-                        width="80">
+                        width="120">
                         </el-table-column>
                         <el-table-column
-                        prop="name"
+                        prop="releaseTime"
                         label="发布时间"
-                        width="80">
+                        width="120">
                         </el-table-column>
                         <el-table-column
-                        prop="name"
                         label="发布状态"
                         width="80">
+                            <template slot-scope="{row}">
+                                <span>{{row.enabled == 1?'启用':'下线'}}</span>
+                            </template>
                         </el-table-column>
                         <el-table-column
                         prop="name"
                         label="管理"
                         width="210">
-                            <template slot-scope="scope">
-                                <el-button size="mini" @click="handleView(scope.$index, scope.row)">查看</el-button>
-                                <el-button size="mini" @click="handleView(scope.$index, scope.row)">查看</el-button>
-                                <el-button size="mini" @click="handleView(scope.$index, scope.row)">查看</el-button>
+                            <template slot-scope="{row}">
+                                <el-button size="mini" @click="handleView(row)">编辑</el-button>
+                                <el-button size="mini" @click="handleOnOrOut(row)">{{row.enabled == 1?'下线':'启用'}}</el-button>
+                                <el-button size="mini" @click="handleDelete(row)">删除</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -167,11 +158,11 @@
                         background
                         @size-change="handleSizeChange"
                         @current-change="handleCurrentChange"
-                        :current-page="currentPage4"
+                        :current-page="pageNum"
                         :page-sizes="[10, 25, 50]"
-                        :page-size="100"
+                        :page-size="pageSize"
                         layout="total, sizes, prev, pager, next, jumper"
-                        :total="400"
+                        :total="pageTotal"
                         prev-text="上一页"
                         next-text="下一页">
                         </el-pagination>
@@ -182,43 +173,154 @@
     </div>
 </template>
 <script>
+import { loadAllCateList, loadProductList, productOnOrOutline, productDelete} from "@/service/getData"
 export default {
     data(){
         return{
-            options: [{
-                value: '选项1',
-                label: '黄金糕'
-                }, {
-                value: '选项2',
-                label: '双皮奶'
-                }, {
-                value: '选项3',
-                label: '蚵仔煎'
-                }, {
-                value: '选项4',
-                label: '龙须面'
-                }, {
-                value: '选项5',
-                label: '北京烤鸭'
-            }],
+            pageNum:1,
+            pageSize:10,
+            pageTotal:1,
+            searchName:'',
             value: '',
-            tableData: [{
-                date: '2016-05-02',
-                name: '王小虎',
-                address: '上海市普陀区金沙江路 1518 弄'
-            }],
-            fileList: []
+            tableData: [],
+            fileList: [],
+            firstCateList:[],
+            secondCateList:[],
+            categoryOneId:'',
+            categoryTwoId:'',
+            productOrigin:'',
+            productOriginList:[{
+                value: '',
+                label: '全部'
+                },{
+                value: 1,
+                label: '外部'
+                }, {
+                value: 2,
+                label: '服务商发布'
+                }, {
+                value: 3,
+                label: '人工采编'
+                }]
         }
     },
+    mounted(){
+        this.getAllCate();
+        this.getProductList();
+    },
     methods:{
-        handleView(index,row){
-            this.$router.push({
-                path:'/userinfo',
-                query:{
-                    userInfo:row,
-                    activeIndex:'4'
-                },
+        // 改变分页页数
+        handleSizeChange(){
+
+        },
+        
+        // 跳转点击的页面
+        handleCurrentChange(pege){
+            this.pageNum = page;
+            this.getProductList();
+        },
+
+        // 搜索
+        search(){
+            let params = {
+                categoryOneId: this.categoryOneId,
+                categoryTwoId: this.categoryTwoId,
+                pageNum: this.pageNum,
+                pageSize: this.pageSize,
+                productSource: this.productOrigin,
+                proudctKeyWord: this.searchName
+            }
+            loadProductList(params).then(res=>{
+                if(res.data.dataList){
+                    this.tableData = res.data.dataList;
+                    this.pageTotal = res.data.totalCount;
+                }
             })
+        },
+
+        // 获取所有类目，包括一级和二级
+        getAllCate(){
+            loadAllCateList({}).then(res=>{
+                this.firstCateList = res.data;
+            })
+        },
+
+        // 获取一级类目ID
+        getFirstCateId(){
+            for(var item of this.firstCateList){
+                if(item.id == (this.categoryOneId).toString()){
+                    this.categoryTwoId = '';
+                    this.secondCateList = item.childrenList;
+                    break;
+                }
+            }
+        },
+
+        // 查询产品库列表
+        getProductList(){
+            let params = {
+                categoryOneId: "",
+                categoryTwoId: "",
+                pageNum: this.pageNum,
+                pageSize: this.pageSize,
+                productSource: "",
+                proudctKeyWord: ""
+            }
+            loadProductList(params).then(res=>{
+                if(res.data.dataList){
+                    this.tableData = res.data.dataList;
+                    this.pageTotal = res.data.totalCount;
+                }
+            })
+        },
+
+        // 编辑跳转
+        handleView(row){
+            this.$store.commit('saveProductInfo',row);
+            this.$router.push({
+                path:'/productDetail',
+            })
+        },
+
+        // 产品上下线
+        handleOnOrOut(row){
+            let enabled = Math.abs(row.enabled-1);
+            let params ={
+                id: row.id,
+                enabled:enabled
+            }
+            productOnOrOutline(params).then(res=>{
+                if(res.code == 200){
+                    this.getProductList();
+                }else{
+                    this.$message.warning(res.msg)
+                }
+            })
+        },
+
+        handleDelete(row){
+            this.$confirm('此操作将永久删除该产品, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                productDelete({id:row.id}).then(res=>{
+                    if(res.code == 200){
+                        this.$message({
+                            type: 'success',
+                            message: '删除成功!'
+                        });
+                        this.getProductList();
+                    }else{
+                        this.$message.warning(res.msg)
+                    }
+                })
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消删除'
+                });          
+            });
         },
 
         // 添加产品
@@ -284,6 +386,9 @@ export default {
             width: 98px;
             margin-left: 20px;
         }
+    }
+     .el-table td, .el-table th{
+         text-align: center !important;
     }
 </style>
 

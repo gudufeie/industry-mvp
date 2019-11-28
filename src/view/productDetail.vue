@@ -1,185 +1,218 @@
 <template>
     <div class="main-wrap">
-        <el-row :gutter="20">
-            <el-col :span="12" :offset="6">
-                <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
-                    <span class="status_type title">ID:</span>
-                    <span class="status_type">123456</span>
-                </div>
-            </el-col>
-            <el-col :span="12" :offset="6">
-                <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
-                    <span class="status_type title">产品首图<span class="star">*</span>:</span>
-                    <el-image
-                        style="width: 100px; height: 100px"
-                        :src="url"
-                        :fit="fit">
-                    </el-image>
-                    <el-upload
-                        class="avatar-uploader"
-                        action="https://jsonplaceholder.typicode.com/posts/"
-                        :show-file-list="false"
-                        :on-success="handleAvatarSuccess"
-                        :before-upload="beforeAvatarUpload">
-                        <img v-if="imageUrl" :src="imageUrl" class="avatar">
-                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                    </el-upload>
-                </div>
-            </el-col>
-            <el-col :span="12" :offset="6">
-                <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
-                    <span class="status_type title">产品名称<span class="star">*</span>:</span>
-                    <el-input 
-                        class="status_type" 
-                        v-model="input" 
-                        placeholder="30个字以内"
-                        maxlength="30"
-                        show-word-limit>
-                    </el-input>
-                </div>
-            </el-col>
-            <el-col :span="12" :offset="6">
-                <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
-                    <span class="status_type title">产品价格<span class="star">*</span>:</span>
-                    <el-input class="status_type" v-model="input" placeholder="请输入内容"></el-input>
-                </div>
-            </el-col>
-            <el-col :span="12" :offset="6">
-                <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
-                    <span class="status_type title">一级类目<span class="star">*</span>:</span>
-                    <el-select v-model="firstCate" placeholder="请选择一级类目">
-                        <el-option
-                        v-for="item in firstCateList"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                        </el-option>
-                    </el-select>
-                </div>
-            </el-col>
-            <el-col :span="12" :offset="6">
-                <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
-                    <span class="status_type title">二级类目<span class="star">*</span>:</span>
-                    <el-select v-model="firstCate" placeholder="请选择二级类目">
-                        <el-option
-                        v-for="item in firstCateList"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                        </el-option>
-                    </el-select>
-                </div>
-            </el-col>
-            <el-col :span="12" :offset="6">
-                <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
-                    <span class="status_type title">标签:</span>
-                    <span class="status_type" style="width:80%">
-                        <tags-add></tags-add>
-                    </span>
-                </div>
-            </el-col>
-            <el-col :span="12" :offset="6">
-                <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
-                    <span class="status_type title">产品来源:</span>
-                    <el-select v-model="productOrigin">
-                        <el-option
-                        v-for="item in originList"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                        </el-option>
-                    </el-select>
-                </div>
-            </el-col>
-            <el-col :span="12" :offset="6">
-                <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
-                    <span class="status_type title">商家ID:</span>
-                    <el-input class="status_type" v-model="input" placeholder="请输入内容"></el-input>
-                </div>
-            </el-col>
-            <el-col :span="12" :offset="6">
-                <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
-                    <span class="status_type title">商家名称<span class="star">*</span>:</span>
-                    <business-search style="width:80%;"></business-search>
-                </div>
-            </el-col>
-            <el-col :span="12" :offset="6">
-                <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
-                    <span class="status_type title">所在地:</span>
-                    <el-cascader
-                        size="large"
-                        :options="options"
-                        v-model="selectedOptions"
-                        @change="handleChange">
-                    </el-cascader><br/>
-                </div>
-                <div class="grid-content bg-purple-dark" style="text-align:right;">
-                    <el-input style="width:77%" v-model="input" placeholder="请输入详细地址"></el-input>
-                </div>
-            </el-col>
-            <el-col :span="12" :offset="6">
-                <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
-                    <span class="status_type title">发布时间:</span>
-                    <span class="status_type">123456</span>
-                </div>
-            </el-col>
-            <el-col :span="12" :offset="6">
-                <div class="grid-content bg-purple-dark status" style="display:flex;justify-content:flex-start">
-                    <span class="status_type title">是否启用:</span>
-                    <el-select v-model="status" placeholder="请选择二级类目">
-                        <el-option
-                        v-for="item in statusList"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                        </el-option>
-                    </el-select>
-                </div>
-            </el-col>
-            <el-col :span="12" :offset="6">
-                <div class="grid-content bg-purple-dark hrefType" style="display:flex;justify-content:flex-start">
-                    <span class="status_type title">跳转类型:</span>
-                    <span class="status_type">
-                        <el-select v-model="hrefType" placeholder="请选择二级类目" style="width:30%" @change="linkChange">
+        <form action=""  method="post" enctype="multipart/form-data">
+            <el-row :gutter="20">
+                <el-col :span="12" :offset="6" v-if="idShow">
+                    <div class="grid-content bg-purple-dark">
+                        <span class="status_type title">ID:</span>
+                        <span>{{productDetailInfo.id}}</span>
+                    </div>
+                </el-col>
+                <el-col :span="12" :offset="6">
+                    <div class="grid-content bg-purple-dark">
+                        <span class="status_type title">产品首图<span class="star">*</span>:</span>
+                        <el-image
+                            style="width: 100px; height: 100px"
+                            :src="productDetailInfo.productPic"
+                            :fit="fit">
+                        </el-image>
+                        <el-upload
+                            class="avatar-uploader"
+                            action="https://jsonplaceholder.typicode.com/posts/"
+                            :show-file-list="false"
+                            :on-success="handleAvatarSuccess"
+                            :before-upload="beforeAvatarUpload">
+                            <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                        </el-upload>
+                    </div>
+                </el-col>
+                <el-col :span="12" :offset="6">
+                    <div class="grid-content bg-purple-dark">
+                        <span class="status_type title">产品名称<span class="star">*</span>:</span>
+                        <el-input 
+                            class="status_type" 
+                            v-model="productDetailInfo.productName" 
+                            placeholder="30个字以内"
+                            maxlength="30"
+                            show-word-limit>
+                        </el-input>
+                    </div>
+                </el-col>
+                <el-col :span="12" :offset="6">
+                    <div class="grid-content bg-purple-dark price">
+                        <span class="status_type title">产品价格<span class="star">*</span>:</span>
+                        <el-input class="status_type" v-model="productDetailInfo.productPrice" placeholder="请输入价格" @input="getPrice"></el-input>
+                        <span class="tipSpan">{{priceTip}}</span>
+                    </div>
+                </el-col>
+                <el-col :span="12" :offset="6">
+                    <div class="grid-content bg-purple-dark">
+                        <span class="status_type title">一级类目<span class="star">*</span>:</span>
+                        <el-select v-model="productDetailInfo.categoryOneId" placeholder="请选择一级类目" @change="getFirstCateId">
                             <el-option
-                            v-for="item in hrefTypeList"
+                            v-for="(item,index) in firstCateList"
+                            :key="index"
+                            :label="item.categoryName"
+                            :value="item.id">
+                            </el-option>
+                        </el-select>
+                    </div>
+                </el-col>
+                <el-col :span="12" :offset="6">
+                    <div class="grid-content bg-purple-dark">
+                        <span class="status_type title">二级类目<span class="star">*</span>:</span>
+                        <el-select v-model="productDetailInfo.categoryTwoId" placeholder="请选择二级类目">
+                            <el-option
+                            v-for="(item,index) in secondCateList"
+                            :key="index"
+                            :label="item.categoryName"
+                            :value="item.id">
+                            </el-option>
+                        </el-select>
+                    </div>
+                </el-col>
+                <el-col :span="12" :offset="6">
+                    <div class="grid-content bg-purple-dark">
+                        <span class="status_type title">标签:</span>
+                        <span class="status_type" style="width:80%">
+                            <tags-add @getNewTags="getNewTags" :tags="productDetailInfo.keyWordName"></tags-add>
+                        </span>
+                    </div>
+                </el-col>
+                <el-col :span="12" :offset="6">
+                    <div class="grid-content bg-purple-dark">
+                        <span class="status_type title">产品来源:</span>
+                        <el-select v-model="productDetailInfo.productSource">
+                            <el-option
+                            v-for="item in originList"
                             :key="item.value"
                             :label="item.label"
                             :value="item.value">
                             </el-option>
                         </el-select>
-                        <el-input v-show="defaultLink == 2" v-model="input" placeholder="请填写html地址"></el-input>
-                    </span>
-                </div>
-            </el-col>
-            <el-col :span="18" :offset="6">
-                <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
-                    <span class="status_type detail">产品详情:</span>
-                    <span class="status_type">
-                        <vue-editor v-model="content" @blur="getDetail"></vue-editor>
-                    </span>
-                </div>
-            </el-col>
-            <el-col :span="12" :offset="6">
-                <div class="grid-content bg-purple-dark" style="text-align:center">
-                    <el-button type="primary">保存</el-button>
-                    <el-button type="primary">确认发布</el-button>
-                    <el-button @click="back">取消</el-button>
-                    <el-button>删除</el-button>
-                </div>
-            </el-col>
-        </el-row>
+                    </div>
+                </el-col>
+                <el-col :span="12" :offset="6">
+                    <div class="grid-content bg-purple-dark">
+                        <span class="status_type title">商家ID:</span>
+                        <el-input 
+                            class="status_type" 
+                            v-model="productDetailInfo.businessId" 
+                            @blur="getbusiness" 
+                            @keyup.enter.native="getbusiness"
+                            placeholder="请输入内容">
+                        </el-input>
+                    </div>
+                </el-col>
+                <el-col :span="12" :offset="6">
+                    <div class="grid-content bg-purple-dark">
+                        <span class="status_type title">商家名称<span class="star">*</span>:</span>
+                        <business-search @getName="getName" @getBusiness='businessSelect' :businessName="productDetailInfo.businessName" style="width:80%;"></business-search>
+                    </div>
+                </el-col>
+                <el-col :span="12" :offset="6">
+                    <div class="grid-content bg-purple-dark">
+                        <span class="status_type title">所在地:</span>
+                        <el-cascader
+                            size="large"
+                            :options="options"
+                            v-model="selectedOptions"
+                            @change="handleChange">
+                        </el-cascader><br/>
+                    </div>
+                    <div class="grid-content bg-purple-dark" style="text-align:right;">
+                        <span class="status_type title"></span>
+                        <el-input style="width:77%" v-model="productDetailInfo.address" placeholder="请输入详细地址"></el-input>
+                    </div>
+                </el-col>
+                <el-col :span="12" :offset="6">
+                    <div class="grid-content bg-purple-dark">
+                        <span class="status_type title">发布时间:</span>
+                        <span class="status_type">{{productDetailInfo.releaseTime}}</span>
+                    </div>
+                </el-col>
+                <el-col :span="12" :offset="6">
+                    <div class="grid-content bg-purple-dark status">
+                        <span class="status_type title">是否启用:</span>
+                        <el-select v-model="status" placeholder="请选择二级类目">
+                            <el-option
+                            v-for="item in statusList"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </div>
+                </el-col>
+                <el-col :span="12" :offset="6">
+                    <div class="grid-content bg-purple-dark hrefType">
+                        <span class="status_type title">跳转类型:</span>
+                        <span class="status_type">
+                            <el-select v-model="productDetailInfo.forwardType" style="width:30%" @change="linkChange">
+                                <el-option
+                                v-for="item in hrefTypeList"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value">
+                                </el-option>
+                            </el-select>
+                            <el-input v-show="productDetailInfo.forwardType == '2'" v-model="productDetailInfo.forwardUrl" placeholder="请填写html地址"></el-input>
+                        </span>
+                    </div>
+                </el-col>
+                <el-col :span="18" :offset="6">
+                    <div class="grid-content bg-purple-dark">
+                        <span class="status_type detail">产品详情:</span>
+                        <span class="status_type">
+                            <vue-editor v-model="productDetailInfo.productDetail" @blur="getDetail"></vue-editor>
+                        </span>
+                    </div>
+                </el-col>
+                <el-col :span="12" :offset="6">
+                    <div class="grid-content bg-purple-dark" style="text-align:center">
+                        <el-button type="primary" @click="save">保存</el-button>
+                        <el-button type="primary">确认发布</el-button>
+                        <el-button @click="back">取消</el-button>
+                        <el-button>删除</el-button>
+                    </div>
+                </el-col>
+            </el-row>
+        </form>
     </div>
 </template>
 <script>
 import { regionData } from 'element-china-area-data';
 import { VueEditor, Quill } from "vue2-editor";
 import BusinessSearch from "./businessSerach";
-import TagsAdd from "./tagsAdd"
+import TagsAdd from "./tagsAdd";
+import { loadAllCateList, searchBusiness, loadProductDetail, productAdd, productEdit } from "@/service/getData"
 
 export default{
     data(){
         return{
+            productDetailInfo:{
+                categoryOneId:'',
+                categoryTwoId:'',
+                id:'',
+                productName:'',
+                productPrice:'',
+                productSource:'',
+                businessId:'',
+                businessName:'',
+                address:'',
+                releaseTime:'',
+                forwardType:'',
+                forwardUrl:'',
+                productDetail:'',
+                province:'',
+                city:'',
+                area:'',
+                keyWordId:'',
+                keyWordName:'',
+                productPic:''
+            },
+            priceTip:'',
             content: "",
             fit:'',
             input:'',
@@ -191,8 +224,6 @@ export default{
             inputValue: '',
             firstCateList:[],
             secondCateList:[],
-            firstCate:'',
-            secondCate:'',
             updateTime:'',
             statusList:[
                 {label:'是',value:1},
@@ -201,25 +232,23 @@ export default{
             relationName:'',
             keyWordRelationname:[],
             keyworkId:'',
-            firstCateId:'',
-            secondCateId:'',
             key:{},
-            hrefType:1,
             hrefTypeList:[
-                {label:'固定链接',value:1},
-                {label:'默认(有联系方式跳转详情,无联系方式跳转站外)',value:2}
+                {label:'固定链接',value:'1'},
+                {label:'默认(有联系方式跳转详情,无联系方式跳转站外)',value:'2'}
             ],
             options: regionData ,
             selectedOptions: [],
-            productOrigin:1,    //产品来源
+            productOrigin:'1',    //产品来源
             originList:[
-                {label:'外部',value:1},
-                {label:'服务商发布',value:2},
-                {label:'人工采编',value:3}
+                {label:'外部',value:'1'},
+                {label:'服务商发布',value:'2'},
+                {label:'人工采编',value:'3'}
             ],
             imageUrl:'',
             defaultLink:false,
-            tagDialogVisible:false
+            tagDialogVisible:false,
+            idShow:false
         }
     },
     components:{
@@ -227,26 +256,49 @@ export default{
         BusinessSearch,
         TagsAdd
     },
+    computed:{
+        productInfo(){
+            return this.$store.state.productInfo;
+        }
+    },
+    mounted(){
+        if(!!this.productInfo.id){
+            this.idShow = true;
+            this.getProductDetail(this.productInfo.id);
+            this.$store.commit('saveProductInfo','')
+        }
+        this.getAllCate();
+    },
     methods:{
-        handleClose(tag) {
-            this.relateKeywordList.splice(this.relateKeywordList.indexOf(tag), 1);
-        },
-
-        showInput() {
-            this.inputVisible = true;
-        },
-
-        handleInputConfirm() {
-            let inputValue = this.inputValue;
-            if (inputValue) {
-            this.relateKeywordList.push(inputValue);
-            }
-            this.inputVisible = false;
-            this.inputValue = '';
-        },
-
+        // 获取选择的地区
         handleChange (value) {
-            console.log(value)
+            this.productDetailInfo.province = value[0];
+            this.productDetailInfo.city = value[1]
+            this.productDetailInfo.area = value[2]
+        },
+        // 获取所有类目，包括一级和二级
+        getAllCate(){
+            loadAllCateList({}).then(res=>{
+                this.firstCateList = res.data;
+            })
+        },
+
+        // 获取一级类目ID
+        getFirstCateId(){
+            for(var item of this.firstCateList){
+                if(item.id == (this.productDetailInfo.categoryOneId).toString()){
+                    this.productDetailInfo.categoryTwoId = '';
+                    this.secondCateList = item.childrenList;
+                    break;
+                }
+            }
+        },
+
+        getProductDetail(id){
+            loadProductDetail({id:id}).then(res=>{
+                this.productDetailInfo = res.data;
+                this.selectedOptions=[this.productDetailInfo.province,this.productDetailInfo.city,this.productDetailInfo.area]
+            })
         },
 
         // 获取富文本框内容
@@ -276,13 +328,78 @@ export default{
             return isJPG && isLt2M;
         },
         linkChange(){
-            console.log('00000000')
             this.defaultLink = this.hrefType
         },
 
         // 查询标签
         getTag(){
 
+        },
+
+        // 修改和删除产品
+        save(){
+            this.productDetailInfo.productPic = this.url;
+            if(this.productDetailInfo.id){
+                productEdit(this.productDetailInfo).then(res=>{
+                    if(res.code == 200){
+                        this.$message.success('修改成功');
+                        this.$router.push({
+                            path:'/product'
+                        })
+                    }else{
+                        this.$message.warning(res.msg)
+                    }
+                })
+            }else{
+                productAdd(this.productDetailInfo).then(res=>{
+                    if(res.code == 200){
+                        this.$message.success('添加成功');
+                        this.$router.push({
+                            path:'/product'
+                        })
+                    }else{
+                        this.$message.warning(res.msg)
+                    }
+                })
+            }
+        },
+
+        // 验证价格
+        getPrice(){
+            this.$rules.validatePrice(this.productDetailInfo.productPrice,(data)=>{
+                this.priceTip = data;
+            })
+        },
+
+        // 利用商户ID获取商户信息
+        getbusiness(){
+            let params ={
+                id:this.productDetailInfo.businessId,
+                businessName:''
+            }
+            searchBusiness(params).then(res=>{
+                this.productDetailInfo.businessName = res.data[0].businessName;
+            })
+        },
+
+        getName(name){
+            this.productDetailInfo.businessName = name;
+        },
+
+        // 服务商选择
+        businessSelect(business){
+            console.log('添加的新服务商',business)
+            this.productDetailInfo.businessName = business.value;
+            this.productDetailInfo.businessId = business.id;
+        },
+
+        // 获取标签
+         getNewTags(newTags,id){
+            this.productDetailInfo.keyWordId = this.productDetailInfo.keyWordId + ',' +id
+            this.productDetailInfo.keyWordName = newTags;
+            if(this.productDetailInfo.keyWordName.length > 0){
+                this.productDetailInfo.keyWordName = this.productDetailInfo.keyWordName.substring(0,this.productDetailInfo.keyWordName.length - 1);
+            }
         }
     }
 }
@@ -291,6 +408,19 @@ export default{
     .main-wrap{
         font-size: 14px;
         padding:10px;
+    }
+    .grid-content{
+        display:flex;
+        justify-content:flex-start;
+    }
+    .price{
+        position:relative;
+        .tipSpan{
+            position:absolute;
+            top: 48px;
+            left: 120px;
+            color:red;
+        }
     }
     .status_type{
         display: inline-block; 

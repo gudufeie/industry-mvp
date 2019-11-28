@@ -1,10 +1,10 @@
 <template>
     <div class="main-wrap">
         <el-row :gutter="20">
-            <el-col :span="12" :offset="6">
+            <el-col :span="12" :offset="6" v-show="mode == 'edit'">
                 <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">解决方案ID:</span>
-                    <span class="status_type">123456</span>
+                    <span class="status_type">{{sulutionDeatail.id}}</span>
                 </div>
             </el-col>
             <el-col :span="12" :offset="6">
@@ -12,7 +12,7 @@
                     <span class="status_type title">方案首图:<span class="star">*</span>:</span>
                     <el-image
                         style="width: 100px; height: 100px"
-                        :src="url"
+                        :src="sulutionDeatail.solutionCover"
                         :fit="fit">
                     </el-image>
                     <el-upload
@@ -31,7 +31,7 @@
                     <span class="status_type title">方案名称:<span class="star">*</span>:</span>
                     <el-input 
                         class="status_type" 
-                        v-model="input" 
+                        v-model="sulutionDeatail.solutionName" 
                         placeholder="30个字以内"
                         maxlength="30"
                         show-word-limit>
@@ -41,15 +41,15 @@
             <el-col :span="12" :offset="6">
                 <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">方案报价:<span class="star">*</span>:</span>
-                    <el-input class="status_type" v-model="input" placeholder="请输入内容"></el-input>
+                    <el-input class="status_type" v-model="sulutionDeatail.solutionPrice" placeholder="请输入内容"></el-input>
                 </div>
             </el-col>
             <el-col :span="12" :offset="6">
                 <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">二级类目<span class="star">*</span>:</span>
-                    <el-select v-model="firstCate" placeholder="请选择二级类目">
+                    <el-select v-model="sulutionDeatail.categoryTwoId" placeholder="请选择二级类目">
                         <el-option
-                        v-for="item in firstCateList"
+                        v-for="item in secondCateList"
                         :key="item.value"
                         :label="item.label"
                         :value="item.value">
@@ -68,35 +68,28 @@
             <el-col :span="12" :offset="6">
                 <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">产品来源:</span>
-                    <el-select v-model="productOrigin">
-                        <el-option
-                        v-for="item in originList"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                        </el-option>
-                    </el-select>
+                    <span>{{solutionInfo.solutionSource == 1?'服务商发布':'人工采编'}}</span>
                 </div>
             </el-col>
-            <el-col :span="12" :offset="6" v-if="productOrigin == 1">
+            <el-col :span="12" :offset="6" v-if="solutionInfo.solutionSource == 1">
                 <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">发布人:</span>
-                    <el-input class="status_type" v-model="input" placeholder="请输入内容"></el-input>
+                    <el-input class="status_type" v-model="sulutionDeatail.releaseName" placeholder="请输入内容"></el-input>
                 </div>
             </el-col>
-            <el-col :span="12" :offset="6" v-if="productOrigin == 2">
+            <el-col :span="12" :offset="6" v-if="solutionInfo.solutionSource == 2">
                 <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">商家ID:</span>
-                    <el-input class="status_type" v-model="input" placeholder="请输入内容"></el-input>
+                    <el-input class="status_type" v-model="sulutionDeatail.businessId" placeholder="请输入内容"></el-input>
                 </div>
             </el-col>
-            <el-col :span="12" :offset="6" v-if="productOrigin == 2">
+            <el-col :span="12" :offset="6" v-if="solutionInfo.solutionSource == 2">
                 <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">商家名称<span class="star">*</span>:</span>
                     <business-search style="width:80%;"></business-search>
                 </div>
             </el-col>
-            <el-col :span="12" :offset="6">
+            <!-- <el-col :span="12" :offset="6">
                 <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">发布人所在地:</span>
                     <el-cascader
@@ -107,29 +100,29 @@
                     </el-cascader><br/>
                 </div>
                 <div class="grid-content bg-purple-dark" style="text-align:right;">
-                    <el-input style="width:77%" v-model="input" placeholder="请输入详细地址"></el-input>
+                    <el-input style="width:77%" v-model="sulutionDeatail.releaseAddress" placeholder="请输入详细地址"></el-input>
                 </div>
-            </el-col>
+            </el-col> -->
             <el-col :span="12" :offset="6">
                 <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">真实浏览数:</span>
                     <span style="width:80%;line-height:40px;">
-                        <span style="width: 35%;display: inline-block;">123</span>
+                        <span style="width: 35%;display: inline-block;">{{sulutionDeatail.realCount}}</span>
                         <span>前台浏览数:</span>
-                        <el-input style="width:40%;float:right" v-model="input" placeholder="请输入"></el-input>
+                        <el-input style="width:40%;float:right" v-model="sulutionDeatail.setCount" placeholder="请输入"></el-input>
                     </span>
                 </div>
             </el-col>
             <el-col :span="12" :offset="6">
                 <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">发布时间:</span>
-                    <span class="status_type">123456</span>
+                    <span class="status_type">{{sulutionDeatail.releaseTime}}</span>
                 </div>
             </el-col>
             <el-col :span="12" :offset="6">
                 <div class="grid-content bg-purple-dark status" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">是否启用:</span>
-                    <el-select v-model="status" placeholder="请选择二级类目">
+                    <el-select v-model="sulutionDeatail.enabled" placeholder="请选择二级类目">
                         <el-option
                         v-for="item in statusList"
                         :key="item.value"
@@ -143,7 +136,7 @@
                 <div class="grid-content bg-purple-dark hrefType" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">跳转类型:</span>
                     <span class="status_type">
-                        <el-select v-model="hrefType" placeholder="请选择二级类目" style="width:30%" @change="linkChange">
+                        <el-select v-model="sulutionDeatail.forwardType" placeholder="请选择二级类目" style="width:30%" @change="linkChange">
                             <el-option
                             v-for="item in hrefTypeList"
                             :key="item.value"
@@ -151,18 +144,18 @@
                             :value="item.value">
                             </el-option>
                         </el-select>
-                        <el-input v-show="defaultLink == 2" v-model="input" placeholder="请填写html地址"></el-input>
+                        <el-input v-show="defaultLink == 2" v-model="sulutionDeatail.forwardUrl" placeholder="请填写html地址"></el-input>
                     </span>
                 </div>
             </el-col>
             <el-col :span="12" :offset="6">
                 <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
-                    <span class="status_type title">方案概述:</span>
+                    <span class="status_type title">方案描述:</span>
                     <el-input 
                         class="status_type" 
                         type="textarea" 
                         :rows='6' 
-                        v-model="input" 
+                        v-model="sulutionDeatail.solutionSummary" 
                         placeholder="100个字以内"
                         maxlength="100"
                         show-word-limit>
@@ -173,7 +166,7 @@
                 <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
                     <span class="status_type detail">产品详情:</span>
                     <span class="status_type">
-                        <vue-editor v-model="content" @blur="getDetail"></vue-editor>
+                        <vue-editor v-model="sulutionDeatail.solutionDescription" @blur="getDetail"></vue-editor>
                     </span>
                 </div>
             </el-col>
@@ -193,10 +186,36 @@ import { regionData } from 'element-china-area-data';
 import { VueEditor, Quill } from "vue2-editor";
 import BusinessSearch from "./businessSerach";
 import TagsAdd from "./tagsAdd";
+import { loadSolutionDetail } from "@/service/getData"
 
 export default{
     data(){
         return{
+            sulutionDeatail:{
+                businessId: "",
+                businessName: "",
+                categoryTwoId: "",
+                categoryTwoName: "",
+                enabled: 1,
+                forwardType: 0,
+                forwardUrl: "",
+                id: "",
+                keyWordId: "",
+                keyWordName: "",
+                publish: 0,
+                realCount: 0,
+                releaseAddress: "",
+                releaseId: "",
+                releaseName: "",
+                releaseTime: "",
+                setCount: 0,
+                solutionCover: "",
+                solutionDescription: "",
+                solutionName: "",
+                solutionPrice: '0',
+                solutionSource: 1,
+                solutionSummary: ""
+            },
             content: "",
             fit:'',
             input:'',
@@ -206,9 +225,7 @@ export default{
             relateKeywordList:[],
             inputVisible: false,
             inputValue: '',
-            firstCateList:[],
             secondCateList:[],
-            firstCate:'',
             secondCate:'',
             updateTime:'',
             statusList:[
@@ -220,7 +237,6 @@ export default{
             relateKeywordList:[],
             keyworkId:'',
             firstCateId:'',
-            secondCateId:'',
             key:{},
             hrefType:1,
             hrefTypeList:[
@@ -229,15 +245,15 @@ export default{
             ],
             dialogVisible:false,
             options: regionData ,
-            selectedOptions: [],
-            productOrigin:1,    //产品来源
+            selectedOptions: [],   //产品来源
             originList:[
                 {label:'服务商发布',value:1},
                 {label:'人工采编',value:2}
             ],
             imageUrl:'',
             defaultLink:false,
-            tagDialogVisible:false
+            tagDialogVisible:false,
+            mode:'add'
         }
     },
     components:{
@@ -245,7 +261,21 @@ export default{
         BusinessSearch,
         TagsAdd
     },
+    computed:{
+        solutionInfo(){
+            return this.$store.state.solutionInfo;
+        }
+    },
+    mounted(){
+        if(this.solutionInfo.id){
+            this.mode == 'edit';
+            loadSolutionDetail({id:this.solutionInfo.id}).then(res=>{
+                this.sulutionDeatail = res.data;
+            })
+        }
+    },
     methods:{
+
         handleClose(tag) {
             this.relateKeywordList.splice(this.relateKeywordList.indexOf(tag), 1);
         },
