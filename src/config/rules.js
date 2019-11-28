@@ -85,6 +85,20 @@ let rules = {
     }else{
       callback('价格不能为空');
     }
+  },
+
+  forEach(obj,fn) {
+    var key;
+    if(obj instanceof Array){
+        obj.forEach(function(item,index){
+            fn(item,index);
+        })
+  
+    }else {
+        for(key in obj){
+            fn(key,obj[key]);
+        }
+    }
   }
 
 }

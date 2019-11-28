@@ -40,5 +40,11 @@ export default{
     saveSolutionInfo(state,solutionInfo){
         // 保存产品信息
         state.solutionInfo = solutionInfo;
-    }
+    },
+    // 保存一级类目信息
+    saveTopEditData(state,topEdit){
+        state.topEditData=topEdit;
+    },
+
+
 }

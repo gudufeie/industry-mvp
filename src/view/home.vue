@@ -16,7 +16,7 @@
                     <div class="grid-content bg-purple-dark">
                         <el-table
                             :header-cell-style="{color:'#000'}"
-                            :data="tableData"
+                            :data="topdata"
                             border
                             style="width: 100%">
                             <el-table-column
@@ -25,42 +25,48 @@
                             width="60">
                             </el-table-column>
                             <el-table-column
-                            prop="name"
+                            prop="navigationTitle"
                             label="配置词"
                             width="120">
                             </el-table-column>
                             <el-table-column
-                            prop="address"
+                            prop="typeName"
                             label="跳转类型"
                             width="120">
                             </el-table-column>
                             <el-table-column
-                            prop="name"
+                            prop="description"
                             label="内容">
                             </el-table-column>
                             <el-table-column
-                            prop="name"
+                            prop="sort"
                             label="排序"
                             width="80">
                             </el-table-column>
                             <el-table-column
-                            prop="name"
+                           
                             label="发布状态"
-                            width="100">
+                            width="100"
+                            >
+                            <template slot-scope="scope">
+                            {{scope.row.enable == '1' ? '已下线' : '已上线'}}
+                                </template>
                             </el-table-column>
                             <el-table-column
-                            prop="name"
                             label="最近更新时间"
                             width="180">
+                              <template slot-scope="scope">
+                            {{scope.row.updateTime| formatDate}}
+                                </template>
                             </el-table-column>
                             <el-table-column
                             prop="name"
                             label="管理"
                             width="210">
                                 <template slot-scope="scope">
-                                    <el-button size="mini" @click="handleView(scope.$index, scope.row)">编辑</el-button>
-                                    <el-button size="mini" @click="handleView(scope.$index, scope.row)">下线</el-button>
-                                    <el-button size="mini" @click="handleView(scope.$index, scope.row)">删除</el-button>
+                                    <el-button size="mini" @click="handleTopEdit(scope.$index, scope.row)">编辑</el-button>
+                                    <el-button size="mini" @click="handleTopOffline(scope.$index, scope.row)">下线</el-button>
+                                    <el-button size="mini" @click="handleTopDelete(scope.$index, scope.row)">删除</el-button>
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -328,9 +334,12 @@
     </div>
 </template>
 <script>
+import {getTopdata,changeTopstatus,deleteTop} from '@/service/getData'
 export default {
     data(){
         return{
+            topdata:'',
+            topCategory:{},
             options: [{
                 value: '选项1',
                 label: '黄金糕'
@@ -362,7 +371,54 @@ export default {
             currentPage4:1
         }
     },
+    created(){
+        this.init()
+    },
     methods:{
+        // 初始化
+        init(){
+            let that=this
+            let params={}
+            getTopdata(params).then(res =>{
+                that.topdata=res.data
+            }) 
+        },
+        // 编辑顶部楼层
+        handleTopEdit(index,row){
+            // 保存编辑的内容
+            // this.$store.commit("saveTopEditData",row)
+            this.$local.clear("topEditData");  
+            this.$local.set("topEditData",JSON.stringify(row));
+            this.$router.push({
+                path:'/topFloorDetail',
+                query:{id:1}
+            })
+        },
+        // 改变顶部楼层状态
+        handleTopOffline(index,row){
+            let enable=row.enable
+            if(enable == 1){
+                enable=0
+            }else{
+                enable=1
+            }
+            let params={
+                id:row.id,
+                enable:enable
+            }
+            changeTopstatus(params).then(res =>{
+                this.init()
+            })
+        },
+        // 删除顶部楼层
+        handleTopDelete(index,row){
+            let params={
+                id:row.id,
+            }
+            deleteTop(params).then(res =>{
+                  this.init()
+            })
+        },
         // 改变分页显示数量
         handleSizeChange(){
 
@@ -404,7 +460,8 @@ export default {
         // 跳转顶部楼层详情
         toTopFloor(){
             this.$router.push({
-                path:'/topFloorDetail'
+                path:'/topFloorDetail',
+                query:{id:2}
             })
         },
 

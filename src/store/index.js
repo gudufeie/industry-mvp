@@ -12,7 +12,10 @@ const state = {
 	userInfo:{},
 	providerInfo:{},     //服务商信息
 	productInfo:{},      //产品信息
-	solutionInfo:{}
+	solutionInfo:{},
+	providerInfo:{},
+	topEditData:'',
+
 
 }
 
