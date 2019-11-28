@@ -72,6 +72,19 @@ let rules = {
   }else{
     callback('');
   }
+},
+forEach(obj,fn) {
+  var key;
+  if(obj instanceof Array){
+      obj.forEach(function(item,index){
+          fn(item,index);
+      })
+
+  }else {
+      for(key in obj){
+          fn(key,obj[key]);
+      }
+  }
 }
 }
 export default rules

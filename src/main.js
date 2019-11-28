@@ -15,11 +15,11 @@ Vue.prototype.$rules = rules;
 // 时间戳转换为时间
 Vue.filter('formatDate', (time) => {
   let formatTime;
-  if (time !== null) {
+  if (time) {
     const date = new Date(time);
     formatTime = moment(date).format('YYYY-MM-DD HH:mm:ss');
   } else {
-    formatTime = '-';
+    formatTime = '';
   }
   return formatTime;
 });

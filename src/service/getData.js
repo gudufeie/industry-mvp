@@ -18,7 +18,7 @@ export const loadFirstCateList = (params) => {
 
 // 获取所有类目
 export const loadAllCateList = (params) => {
-    return postList(baseUrl+'/product/getAllChildren',params);
+    return post(baseUrl+'/product/getAllChildren',params);
 }
 
 // 删除类目
@@ -253,4 +253,44 @@ export const loadSolutionList = (params) =>{
     return postList(baseUrl + '/businesssolution/list', params)
 }
 
+
+// --------------------首页管理----------------------
+
+// 获取顶部楼层内容
+
+export const getTopdata = (params) =>{
+    return post(baseUrl + '/contentManager/findTopContent', params)
+}
+// 编辑新增顶部楼层
+export const editTopdata = (params) =>{
+    return post(baseUrl + '/contentManager/saveOrUpdateTopContent', params)
+}
+// 更改顶部楼层状态
+export const changeTopstatus = (params) =>{
+    return post(baseUrl + '/contentManager/updateTopContentEnable', params)
+}
+// 删除顶部楼层和分发层内容
+export const deleteTop = (params) =>{
+    return post(baseUrl + '/contentManager/deleteTop', params)
+}
+// 获取顶部楼层二级内容
+export const editSecondary = (params) =>{
+    return post(baseUrl + '/contentManager/findTwoTopContent', params)
+}
+// 获取顶部楼层二级内容的跳转类型
+export const getSecondarytype = (params) =>{
+    return post(baseUrl + '/product/getAllType', params)
+}
+// 获取顶部楼层二级内容的所有二级类目
+export const getTwoProduct = (params) =>{
+    return post(baseUrl + '/product/getAllTwoProduct', params)
+}
+// 编辑或新增顶部楼层中二级内容
+export const getTwoTopContent = (params) =>{
+    return post(baseUrl + '/contentManager/saveOrUpdateTwoTopContent', params)
+}
+// 删除顶部楼层和分发楼层二级内容
+export const getDeleteTopContent = (params) =>{
+    return post(baseUrl + '/contentManager/delete', params)
+}
 

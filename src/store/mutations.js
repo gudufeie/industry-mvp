@@ -30,5 +30,11 @@ export default{
         //保存服务商详情
         state.providerInfo = providerInfo;
         local.set('providerInfo',JSON.stringify(providerInfo))
-    }
+    },
+    // 保存一级类目信息
+    saveTopEditData(state,topEdit){
+        state.topEditData=topEdit;
+    },
+
+
 }
