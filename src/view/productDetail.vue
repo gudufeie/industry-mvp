@@ -76,7 +76,7 @@
                     <div class="grid-content bg-purple-dark">
                         <span class="status_type title">标签:</span>
                         <span class="status_type" style="width:80%">
-                            <tags-add @getNewTags="getNewTags" :tags="productDetailInfo.keyWordName"></tags-add>
+                            <tags-add @getNewTags="getNewTags" :tags="productDetailInfo.keyWordName" :tagsId="productDetailInfo.keyWordId"></tags-add>
                         </span>
                     </div>
                 </el-col>
@@ -135,7 +135,7 @@
                 <el-col :span="12" :offset="6">
                     <div class="grid-content bg-purple-dark status">
                         <span class="status_type title">是否启用:</span>
-                        <el-select v-model="status" placeholder="请选择二级类目">
+                        <el-select v-model="productDetailInfo.enabled" placeholder="请选择二级类目">
                             <el-option
                             v-for="item in statusList"
                             :key="item.value"
@@ -169,12 +169,12 @@
                         </span>
                     </div>
                 </el-col>
-                <el-col :span="12" :offset="6">
-                    <div class="grid-content bg-purple-dark" style="text-align:center">
+                <el-col :span="24">
+                    <div class="grid-content bg-purple-dark" style="justify-content: center;">
                         <el-button type="primary" @click="save">保存</el-button>
-                        <el-button type="primary">确认发布</el-button>
+                        <el-button type="primary" @click="publish">确认发布</el-button>
                         <el-button @click="back">取消</el-button>
-                        <el-button>删除</el-button>
+                        <el-button v-if="mode == 'edit'" @click="deleteProduct">删除</el-button>
                     </div>
                 </el-col>
             </el-row>
@@ -186,7 +186,8 @@ import { regionData } from 'element-china-area-data';
 import { VueEditor, Quill } from "vue2-editor";
 import BusinessSearch from "./businessSerach";
 import TagsAdd from "./tagsAdd";
-import { loadAllCateList, searchBusiness, loadProductDetail, productAdd, productEdit } from "@/service/getData"
+import { loadAllCateList, searchBusiness, loadProductDetail,
+        productAdd, productEdit, productDelete } from "@/service/getData"
 
 export default{
     data(){
@@ -210,7 +211,8 @@ export default{
                 area:'',
                 keyWordId:'',
                 keyWordName:'',
-                productPic:''
+                productPic:'',
+                publish:'0'
             },
             priceTip:'',
             content: "",
@@ -248,7 +250,8 @@ export default{
             imageUrl:'',
             defaultLink:false,
             tagDialogVisible:false,
-            idShow:false
+            idShow:false,
+            mode:'add'
         }
     },
     components:{
@@ -263,6 +266,7 @@ export default{
     },
     mounted(){
         if(!!this.productInfo.id){
+            this.mode = 'edit';
             this.idShow = true;
             this.getProductDetail(this.productInfo.id);
             this.$store.commit('saveProductInfo','')
@@ -339,13 +343,12 @@ export default{
         // 修改和删除产品
         save(){
             this.productDetailInfo.productPic = this.url;
+            this.productDetailInfo.publish = '0';
             if(this.productDetailInfo.id){
                 productEdit(this.productDetailInfo).then(res=>{
                     if(res.code == 200){
                         this.$message.success('修改成功');
-                        this.$router.push({
-                            path:'/product'
-                        })
+                        this.$router.push('/product')
                     }else{
                         this.$message.warning(res.msg)
                     }
@@ -362,6 +365,36 @@ export default{
                     }
                 })
             }
+        },
+
+        publish(){
+            this.productDetailInfo.publish = '1';
+            this.save();
+        },
+
+        deleteProduct(){
+            this.$confirm('此操作将永久删除该产品, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                productDelete({id:this.productDetailInfo.id}).then(res=>{
+                    if(res.code == 200){
+                        this.$message({
+                            type: 'success',
+                            message: '删除成功!'
+                        });
+                        this.$router.push('/product')
+                    }else{
+                        this.$message.warning(res.msg)
+                    }
+                })
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消删除'
+                });          
+            });
         },
 
         // 验证价格
@@ -388,17 +421,17 @@ export default{
 
         // 服务商选择
         businessSelect(business){
-            console.log('添加的新服务商',business)
             this.productDetailInfo.businessName = business.value;
             this.productDetailInfo.businessId = business.id;
         },
 
         // 获取标签
          getNewTags(newTags,id){
-            this.productDetailInfo.keyWordId = this.productDetailInfo.keyWordId + ',' +id
+            this.productDetailInfo.keyWordId = id
             this.productDetailInfo.keyWordName = newTags;
             if(this.productDetailInfo.keyWordName.length > 0){
                 this.productDetailInfo.keyWordName = this.productDetailInfo.keyWordName.substring(0,this.productDetailInfo.keyWordName.length - 1);
+                this.productDetailInfo.keyWordId = id.substring(0,newTags.length - 1);
             }
         }
     }

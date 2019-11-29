@@ -15,8 +15,7 @@ const state = {
 	solutionInfo:{},
 	providerInfo:{},
 	topEditData:'',
-
-
+	serviceInfo:{}
 }
 
 export default new Vuex.Store({

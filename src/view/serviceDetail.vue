@@ -4,16 +4,16 @@
             <el-row :gutter="20">
                 <el-col :span="12" :offset="6" v-if="idShow">
                     <div class="grid-content bg-purple-dark">
-                        <span class="status_type title">ID:</span>
-                        <span>{{productDetailInfo.id}}</span>
+                        <span class="status_type title">服务ID:</span>
+                        <span>{{serviceDetailInfo.id}}</span>
                     </div>
                 </el-col>
                 <el-col :span="12" :offset="6">
                     <div class="grid-content bg-purple-dark">
-                        <span class="status_type title">产品首图<span class="star">*</span>:</span>
+                        <span class="status_type title">服务首图<span class="star">*</span>:</span>
                         <el-image
                             style="width: 100px; height: 100px"
-                            :src="productDetailInfo.productPic"
+                            :src="serviceDetailInfo.servicePic"
                             :fit="fit">
                         </el-image>
                         <el-upload
@@ -29,10 +29,10 @@
                 </el-col>
                 <el-col :span="12" :offset="6">
                     <div class="grid-content bg-purple-dark">
-                        <span class="status_type title">产品名称<span class="star">*</span>:</span>
+                        <span class="status_type title">服务名称<span class="star">*</span>:</span>
                         <el-input 
                             class="status_type" 
-                            v-model="productDetailInfo.productName" 
+                            v-model="serviceDetailInfo.serviceName" 
                             placeholder="30个字以内"
                             maxlength="30"
                             show-word-limit>
@@ -41,15 +41,15 @@
                 </el-col>
                 <el-col :span="12" :offset="6">
                     <div class="grid-content bg-purple-dark price">
-                        <span class="status_type title">产品价格<span class="star">*</span>:</span>
-                        <el-input class="status_type" v-model="productDetailInfo.productPrice" placeholder="请输入价格" @input="getPrice"></el-input>
+                        <span class="status_type title">服务价格<span class="star">*</span>:</span>
+                        <el-input class="status_type" v-model="serviceDetailInfo.servicePrice" placeholder="请输入价格" @input="getPrice"></el-input>
                         <span class="tipSpan">{{priceTip}}</span>
                     </div>
                 </el-col>
                 <el-col :span="12" :offset="6">
                     <div class="grid-content bg-purple-dark">
                         <span class="status_type title">一级类目<span class="star">*</span>:</span>
-                        <el-select v-model="productDetailInfo.categoryOneId" placeholder="请选择一级类目" @change="getFirstCateId">
+                        <el-select v-model="serviceDetailInfo.categoryOneId" placeholder="请选择一级类目" @change="getFirstCateId">
                             <el-option
                             v-for="(item,index) in firstCateList"
                             :key="index"
@@ -62,7 +62,7 @@
                 <el-col :span="12" :offset="6">
                     <div class="grid-content bg-purple-dark">
                         <span class="status_type title">二级类目<span class="star">*</span>:</span>
-                        <el-select v-model="productDetailInfo.categoryTwoId" placeholder="请选择二级类目">
+                        <el-select v-model="serviceDetailInfo.categoryTwoId" placeholder="请选择二级类目" @change="getSecondCate">
                             <el-option
                             v-for="(item,index) in secondCateList"
                             :key="index"
@@ -76,21 +76,8 @@
                     <div class="grid-content bg-purple-dark">
                         <span class="status_type title">标签:</span>
                         <span class="status_type" style="width:80%">
-                            <tags-add @getNewTags="getNewTags" :tags="productDetailInfo.keyWordName"></tags-add>
+                            <tags-add @getNewTags="getNewTags" :tags="serviceDetailInfo.keyWordName" :tagsId="serviceDetailInfo.keyWordId"></tags-add>
                         </span>
-                    </div>
-                </el-col>
-                <el-col :span="12" :offset="6">
-                    <div class="grid-content bg-purple-dark">
-                        <span class="status_type title">产品来源:</span>
-                        <el-select v-model="productDetailInfo.productSource">
-                            <el-option
-                            v-for="item in originList"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value">
-                            </el-option>
-                        </el-select>
                     </div>
                 </el-col>
                 <el-col :span="12" :offset="6">
@@ -98,7 +85,7 @@
                         <span class="status_type title">商家ID:</span>
                         <el-input 
                             class="status_type" 
-                            v-model="productDetailInfo.businessId" 
+                            v-model="serviceDetailInfo.businessId" 
                             @blur="getbusiness" 
                             @keyup.enter.native="getbusiness"
                             placeholder="请输入内容">
@@ -108,7 +95,7 @@
                 <el-col :span="12" :offset="6">
                     <div class="grid-content bg-purple-dark">
                         <span class="status_type title">商家名称<span class="star">*</span>:</span>
-                        <business-search @getName="getName" @getBusiness='businessSelect' :businessName="productDetailInfo.businessName" style="width:80%;"></business-search>
+                        <business-search @getName="getName" @getBusiness='businessSelect' :businessName="serviceDetailInfo.businessName" style="width:80%;"></business-search>
                     </div>
                 </el-col>
                 <el-col :span="12" :offset="6">
@@ -123,19 +110,19 @@
                     </div>
                     <div class="grid-content bg-purple-dark" style="text-align:right;">
                         <span class="status_type title"></span>
-                        <el-input style="width:77%" v-model="productDetailInfo.address" placeholder="请输入详细地址"></el-input>
+                        <el-input style="width:77%" v-model="serviceDetailInfo.address" placeholder="请输入详细地址"></el-input>
                     </div>
                 </el-col>
                 <el-col :span="12" :offset="6">
                     <div class="grid-content bg-purple-dark">
                         <span class="status_type title">发布时间:</span>
-                        <span class="status_type">{{productDetailInfo.releaseTime}}</span>
+                        <span class="status_type">{{serviceDetailInfo.releaseTime}}</span>
                     </div>
                 </el-col>
                 <el-col :span="12" :offset="6">
                     <div class="grid-content bg-purple-dark status">
                         <span class="status_type title">是否启用:</span>
-                        <el-select v-model="status" placeholder="请选择二级类目">
+                        <el-select v-model="serviceDetailInfo.enabled" placeholder="请选择二级类目">
                             <el-option
                             v-for="item in statusList"
                             :key="item.value"
@@ -149,7 +136,7 @@
                     <div class="grid-content bg-purple-dark hrefType">
                         <span class="status_type title">跳转类型:</span>
                         <span class="status_type">
-                            <el-select v-model="productDetailInfo.forwardType" style="width:30%" @change="linkChange">
+                            <el-select v-model="serviceDetailInfo.forwardType" style="width:30%" @change="linkChange">
                                 <el-option
                                 v-for="item in hrefTypeList"
                                 :key="item.value"
@@ -157,24 +144,24 @@
                                 :value="item.value">
                                 </el-option>
                             </el-select>
-                            <el-input v-show="productDetailInfo.forwardType == '2'" v-model="productDetailInfo.forwardUrl" placeholder="请填写html地址"></el-input>
+                            <el-input v-show="serviceDetailInfo.forwardType == '2'" v-model="serviceDetailInfo.forwardUrl" placeholder="请填写html地址"></el-input>
                         </span>
                     </div>
                 </el-col>
                 <el-col :span="18" :offset="6">
                     <div class="grid-content bg-purple-dark">
-                        <span class="status_type detail">产品详情:</span>
+                        <span class="status_type detail">服务详情:</span>
                         <span class="status_type">
-                            <vue-editor v-model="productDetailInfo.productDetail" @blur="getDetail"></vue-editor>
+                            <vue-editor v-model="serviceDetailInfo.serviceDetail" @blur="getDetail"></vue-editor>
                         </span>
                     </div>
                 </el-col>
                 <el-col :span="12" :offset="6">
                     <div class="grid-content bg-purple-dark" style="text-align:center">
                         <el-button type="primary" @click="save">保存</el-button>
-                        <el-button type="primary">确认发布</el-button>
+                        <el-button type="primary" @click="publish">确认发布</el-button>
                         <el-button @click="back">取消</el-button>
-                        <el-button>删除</el-button>
+                        <el-button v-if="mode == 'edit'" @click="serviceDelete">删除</el-button>
                     </div>
                 </el-col>
             </el-row>
@@ -186,31 +173,34 @@ import { regionData } from 'element-china-area-data';
 import { VueEditor, Quill } from "vue2-editor";
 import BusinessSearch from "./businessSerach";
 import TagsAdd from "./tagsAdd";
-import { loadAllCateList, searchBusiness, loadProductDetail, productAdd, productEdit } from "@/service/getData"
+import { loadAllCateList, searchBusiness, loadServiceDetail, serviceAdd, serviceEdit } from "@/service/getData"
 
 export default{
     data(){
         return{
-            productDetailInfo:{
-                categoryOneId:'',
-                categoryTwoId:'',
-                id:'',
-                productName:'',
-                productPrice:'',
-                productSource:'',
-                businessId:'',
-                businessName:'',
-                address:'',
-                releaseTime:'',
-                forwardType:'',
-                forwardUrl:'',
-                productDetail:'',
-                province:'',
-                city:'',
-                area:'',
-                keyWordId:'',
-                keyWordName:'',
-                productPic:''
+            serviceDetailInfo:{
+                address: "",
+                area: "",
+                businessId: "",
+                businessName: "",
+                categoryOneId: "",
+                categoryOneName: "",
+                categoryTwoId: "",
+                categoryTwoName: "",
+                city: "",
+                enabled: 0,
+                forwardType: "",
+                forwardUrl: "",
+                id: "",
+                keyWordId: "",
+                keyWordName: "",
+                province: "",
+                publish: '0',
+                releaseTime: "",
+                serviceDetail: "",
+                serviceName: "",
+                servicePic: "",
+                servicePrice: ''
             },
             priceTip:'',
             content: "",
@@ -239,16 +229,11 @@ export default{
             ],
             options: regionData ,
             selectedOptions: [],
-            productOrigin:'1',    //产品来源
-            originList:[
-                {label:'外部',value:'1'},
-                {label:'服务商发布',value:'2'},
-                {label:'人工采编',value:'3'}
-            ],
             imageUrl:'',
             defaultLink:false,
             tagDialogVisible:false,
-            idShow:false
+            idShow:false,
+            mode:'add'
         }
     },
     components:{
@@ -257,47 +242,67 @@ export default{
         TagsAdd
     },
     computed:{
-        productInfo(){
-            return this.$store.state.productInfo;
+        serviceInfo(){
+            return this.$store.state.serviceInfo;
         }
     },
     mounted(){
-        if(!!this.productInfo.id){
+        if(!!this.serviceInfo.id){
+            this.mode = 'edit';
             this.idShow = true;
-            this.getProductDetail(this.productInfo.id);
-            this.$store.commit('saveProductInfo','')
+            this.getServiceDetail(this.serviceInfo.id);
+            this.$store.commit('saveServiceInfo','')
         }
         this.getAllCate();
     },
     methods:{
         // 获取选择的地区
         handleChange (value) {
-            this.productDetailInfo.province = value[0];
-            this.productDetailInfo.city = value[1]
-            this.productDetailInfo.area = value[2]
+            this.serviceDetailInfo.province = value[0];
+            this.serviceDetailInfo.city = value[1]
+            this.serviceDetailInfo.area = value[2]
         },
         // 获取所有类目，包括一级和二级
         getAllCate(){
             loadAllCateList({}).then(res=>{
                 this.firstCateList = res.data;
+                if(!!this.serviceDetailInfo.categoryOneId){
+                    for(var item of this.firstCateList){
+                        if(item.id == (this.serviceDetailInfo.categoryOneId).toString()){
+                            this.secondCateList = item.childrenList;
+                            break;
+                        }
+                    }
+                }
             })
         },
 
         // 获取一级类目ID
         getFirstCateId(){
             for(var item of this.firstCateList){
-                if(item.id == (this.productDetailInfo.categoryOneId).toString()){
-                    this.productDetailInfo.categoryTwoId = '';
+                if(item.id == this.serviceDetailInfo.categoryOneId){
+                    this.serviceDetailInfo.categoryOneName = item.categoryName;
+                    this.serviceDetailInfo.categoryTwoId = '';
                     this.secondCateList = item.childrenList;
                     break;
                 }
             }
         },
 
-        getProductDetail(id){
-            loadProductDetail({id:id}).then(res=>{
-                this.productDetailInfo = res.data;
-                this.selectedOptions=[this.productDetailInfo.province,this.productDetailInfo.city,this.productDetailInfo.area]
+        // 获取二级类目
+        getSecondCate(){
+            for(var item of this.secondCateList){
+                if(item.id == this.serviceDetailInfo.categoryTwoId){
+                    this.serviceDetailInfo.categoryTwoName = item.categoryName;
+                    break;
+                }
+            }
+        },
+
+        getServiceDetail(id){
+            loadServiceDetail({id:id}).then(res=>{
+                this.serviceDetailInfo = res.data;
+                this.selectedOptions=[this.serviceDetailInfo.province,this.serviceDetailInfo.city,this.serviceDetailInfo.area]
             })
         },
 
@@ -336,26 +341,27 @@ export default{
 
         },
 
-        // 修改和删除产品
+        // 修改和删除服务
         save(){
-            this.productDetailInfo.productPic = this.url;
-            if(this.productDetailInfo.id){
-                productEdit(this.productDetailInfo).then(res=>{
+            this.serviceDetailInfo.servicePic = this.url;
+            this.serviceDetailInfo.publish = 0;
+            if(this.serviceDetailInfo.id){
+                serviceEdit(this.serviceDetailInfo).then(res=>{
                     if(res.code == 200){
                         this.$message.success('修改成功');
                         this.$router.push({
-                            path:'/product'
+                            path:'/service'
                         })
                     }else{
                         this.$message.warning(res.msg)
                     }
                 })
             }else{
-                productAdd(this.productDetailInfo).then(res=>{
+                serviceAdd(this.serviceDetailInfo).then(res=>{
                     if(res.code == 200){
                         this.$message.success('添加成功');
                         this.$router.push({
-                            path:'/product'
+                            path:'/service'
                         })
                     }else{
                         this.$message.warning(res.msg)
@@ -363,10 +369,33 @@ export default{
                 })
             }
         },
+        
+        // 确认发布
+        publish(){
+            this.serviceDetailInfo.publish = '1';
+            this.save();
+        },
+
+        serviceDelete(){
+            this.$confirm('此操作将永久删除该服务, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                deleteService({id:this.serviceDetailInfo.id}).then(res=>{
+                    if(res.code == 200){
+                        this.$message.success('删除成功');
+                        this.$router.push('/service')
+                    }
+                })
+            }).catch(() => {
+                this.$message.info('已取消删除')         
+            });
+        },
 
         // 验证价格
         getPrice(){
-            this.$rules.validatePrice(this.productDetailInfo.productPrice,(data)=>{
+            this.$rules.validatePrice(this.serviceDetailInfo.servicePrice,(data)=>{
                 this.priceTip = data;
             })
         },
@@ -374,30 +403,31 @@ export default{
         // 利用商户ID获取商户信息
         getbusiness(){
             let params ={
-                id:this.productDetailInfo.businessId,
+                id:this.serviceDetailInfo.businessId,
                 businessName:''
             }
             searchBusiness(params).then(res=>{
-                this.productDetailInfo.businessName = res.data[0].businessName;
+                this.serviceDetailInfo.businessName = res.data[0].businessName;
             })
         },
 
         getName(name){
-            this.productDetailInfo.businessName = name;
+            this.serviceDetailInfo.businessName = name;
         },
 
         // 服务商选择
         businessSelect(business){
-            this.productDetailInfo.businessName = business.value;
-            this.productDetailInfo.businessId = business.id;
+            this.serviceDetailInfo.businessName = business.value;
+            this.serviceDetailInfo.businessId = business.id;
         },
 
         // 获取标签
          getNewTags(newTags,id){
-            this.productDetailInfo.keyWordId = this.productDetailInfo.keyWordId + ',' +id
-            this.productDetailInfo.keyWordName = newTags;
-            if(this.productDetailInfo.keyWordName.length > 0){
-                this.productDetailInfo.keyWordName = this.productDetailInfo.keyWordName.substring(0,this.productDetailInfo.keyWordName.length - 1);
+            this.serviceDetailInfo.keyWordName = newTags;
+            this.serviceDetailInfo.keyWordId = id;
+            if(this.serviceDetailInfo.keyWordName.length > 0){
+                this.serviceDetailInfo.keyWordName = this.serviceDetailInfo.keyWordName.substring(0,this.serviceDetailInfo.keyWordName.length - 1);
+                this.serviceDetailInfo.keyWordId = this.serviceDetailInfo.keyWordId.substring(0,this.serviceDetailInfo.keyWordId.length - 1);
             }
         }
     }

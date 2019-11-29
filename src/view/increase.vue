@@ -21,12 +21,12 @@
                  <span class="status_type">一级类目
                      <span class="star">*</span>
                  </span>
-                 <el-select v-model="firstCate" placeholder="请选择一级目录">
+                 <el-select v-model="firstCateId" placeholder="请选择一级目录" @change="getCateOne">
                     <el-option
-                    v-for="item in firstCateList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
+                    v-for="(item,index) in firstCateList"
+                    :key="index"
+                    :label="item.categoryName"
+                    :value="item.id">
                     </el-option>
                  </el-select>
                 </div>
@@ -38,12 +38,12 @@
                  <span class="status_type">二级类目
                      <span class="star">*</span>
                  </span>
-                 <el-select v-model="secondCate" placeholder="请选择二级目录">
+                 <el-select v-model="secondCateId" placeholder="请选择二级目录" @change="getCateTwo">
                     <el-option
-                    v-for="item in secondCateList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
+                    v-for="(item,index) in secondCateList"
+                    :key="index"
+                    :label="item.categoryName"
+                    :value="item.id">
                     </el-option>
                  </el-select>
                 </div>
@@ -131,7 +131,7 @@
     </div>
 </template>
 <script>
-import { addKeywork, addKeywordRelation, loadKeywordDetail, updateKeyword } from '../service/getData';
+import { addKeywork, addKeywordRelation, loadKeywordDetail, updateKeyword, loadAllCateList } from '../service/getData';
 
 export default {
     data(){
@@ -156,7 +156,7 @@ export default {
             keyworkId:'',
             firstCateId:'',
             secondCateId:'',
-            key:{}
+            key:{},
         }
     },
     computed: {
@@ -166,37 +166,54 @@ export default {
     },
     mounted(){
         this.getKeyword();
+        // 获取所有类目，包括一级和二级
+        loadAllCateList({}).then(res=>{
+            this.firstCateList = res.data;
+            for(var item of this.firstCateList){
+                if(item.id == this.firstCateId){
+                    this.firstCate = item.categoryName;
+                    this.secondCateList = item.childrenList;
+                    break;
+                }
+            }         
+        })
     },
     methods:{
+        // 查询关键字信息
         getKeyword(){
-            if(this.keywordInfo){
-                let key = this.keywordInfo;
-                this.keyworkId = key.id;
-                this.name = key.keyWordName;
-                this.firstCate = key.categoryOneName;
-                this.secondCate = key.categoryTwoName;
-                this.firstCateId = key.categoryOneId;
-                this.secondCateId = key.categoryTwoId;
-                this.status = key.enable;
-                this.updateTime = key.updateTime;
-                this.relateKeywordList = (key.keyWordRelations).split(',')
-                this.relateKeywordList = this.relateKeywordList.filter(function (el) {
-                    return el && el.trim();
-                })
+            if(this.keywordInfo.id){
+                this.keyworkId = this.keywordInfo.id;
                 this.getKeywordDetail();
+                this.$local.clear('keyword')
+                this.$store.commit('saveKeyword',"")
             }
-            this.$local.clear('keyword')
         },
 
         // 查询关键字详情
         getKeywordDetail(){
             loadKeywordDetail({id:this.keyworkId}).then(res=>{
                 this.keyWordRelationname = res.data.keyWordRelationsDTOs
+                this.keyworkId = res.data.id;
+                this.name = res.data.keyWordName;
+                this.firstCate = res.data.categoryOneName;
+                this.secondCate = res.data.categoryTwoName;
+                this.firstCateId = res.data.categoryOneId;
+                this.secondCateId = res.data.categoryTwoId;
+                this.status = res.data.enable;
+                this.updateTime = res.data.updateTime;
+                for(var item of this.keyWordRelationname){
+                    this.relateKeywordList.push(item.keyWordRelationname);
+                }
             })
         },
 
         handleClose(tag) {
             this.relateKeywordList.splice(this.relateKeywordList.indexOf(tag), 1);
+            for(var index in this.keyWordRelationname){
+                if(this.keyWordRelationname[index].keyWordRelationname == tag){
+                    this.keyWordRelationname.splice(index,1)
+                }
+            }
         },
 
         showInput() {
@@ -327,6 +344,26 @@ export default {
                 })
             }
         },
+
+        getCateOne(){
+            for(var item of this.firstCateList){
+                if(item.id == this.firstCateId){
+                    this.firstCate = item.categoryName;
+                    this.secondCateList = item.childrenList;
+                    this.secondCateId = "";
+                    break;
+                }
+            }
+        },
+
+        getCateTwo(){
+            for(var item of this.secondCateList){
+                if(item.id == this.secondCateId){
+                    this.secondCate = item.categoryName;
+                    break;
+                }
+            }
+        }
     }
 }
 </script>

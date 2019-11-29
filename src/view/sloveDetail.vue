@@ -4,7 +4,7 @@
             <el-col :span="12" :offset="6" v-show="mode == 'edit'">
                 <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">解决方案ID:</span>
-                    <span class="status_type">{{sulutionDeatail.id}}</span>
+                    <span class="status_type">{{solutionDetail.id}}</span>
                 </div>
             </el-col>
             <el-col :span="12" :offset="6">
@@ -12,7 +12,7 @@
                     <span class="status_type title">方案首图:<span class="star">*</span>:</span>
                     <el-image
                         style="width: 100px; height: 100px"
-                        :src="sulutionDeatail.solutionCover"
+                        :src="solutionDetail.solutionCover"
                         :fit="fit">
                     </el-image>
                     <el-upload
@@ -31,7 +31,7 @@
                     <span class="status_type title">方案名称:<span class="star">*</span>:</span>
                     <el-input 
                         class="status_type" 
-                        v-model="sulutionDeatail.solutionName" 
+                        v-model="solutionDetail.solutionName" 
                         placeholder="30个字以内"
                         maxlength="30"
                         show-word-limit>
@@ -41,18 +41,18 @@
             <el-col :span="12" :offset="6">
                 <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">方案报价:<span class="star">*</span>:</span>
-                    <el-input class="status_type" v-model="sulutionDeatail.solutionPrice" placeholder="请输入内容"></el-input>
+                    <el-input class="status_type" v-model="solutionDetail.solutionPrice" placeholder="请输入内容"></el-input>
                 </div>
             </el-col>
             <el-col :span="12" :offset="6">
                 <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">二级类目<span class="star">*</span>:</span>
-                    <el-select v-model="sulutionDeatail.categoryTwoId" placeholder="请选择二级类目">
+                    <el-select v-model="solutionDetail.categoryTwoId" placeholder="请选择二级类目" @change="getSecondCate">
                         <el-option
-                        v-for="item in secondCateList"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
+                        v-for="(item,index) in secondCateList"
+                        :key="index"
+                        :label="item.categoryName"
+                        :value="item.id">
                         </el-option>
                     </el-select>
                 </div>
@@ -61,7 +61,7 @@
                 <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">标签:</span>
                     <span class="status_type">
-                        <tags-add></tags-add>
+                        <tags-add @getNewTags="getNewTags" :tags="solutionDetail.keyWordName" :tagsId="solutionDetail.keyWordId"></tags-add>
                     </span>
                 </div>
             </el-col>
@@ -74,19 +74,24 @@
             <el-col :span="12" :offset="6" v-if="solutionInfo.solutionSource == 1">
                 <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">发布人:</span>
-                    <el-input class="status_type" v-model="sulutionDeatail.releaseName" placeholder="请输入内容"></el-input>
+                    <el-input class="status_type" v-model="solutionDetail.releaseName" placeholder="请输入内容"></el-input>
                 </div>
             </el-col>
-            <el-col :span="12" :offset="6" v-if="solutionInfo.solutionSource == 2">
+            <el-col :span="12" :offset="6">
                 <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">商家ID:</span>
-                    <el-input class="status_type" v-model="sulutionDeatail.businessId" placeholder="请输入内容"></el-input>
+                    <el-input class="status_type" v-model="solutionDetail.businessId" placeholder="请输入内容"></el-input>
                 </div>
             </el-col>
-            <el-col :span="12" :offset="6" v-if="solutionInfo.solutionSource == 2">
+            <el-col :span="12" :offset="6">
                 <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">商家名称<span class="star">*</span>:</span>
-                    <business-search style="width:80%;"></business-search>
+                    <business-search 
+                        @getName="getShopName"
+                        @getBusiness='businessSelect' 
+                        :businessName="solutionDetail.businessName" 
+                        style="width:80%;">
+                    </business-search>
                 </div>
             </el-col>
             <!-- <el-col :span="12" :offset="6">
@@ -100,29 +105,29 @@
                     </el-cascader><br/>
                 </div>
                 <div class="grid-content bg-purple-dark" style="text-align:right;">
-                    <el-input style="width:77%" v-model="sulutionDeatail.releaseAddress" placeholder="请输入详细地址"></el-input>
+                    <el-input style="width:77%" v-model="solutionDetail.releaseAddress" placeholder="请输入详细地址"></el-input>
                 </div>
             </el-col> -->
             <el-col :span="12" :offset="6">
                 <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">真实浏览数:</span>
                     <span style="width:80%;line-height:40px;">
-                        <span style="width: 35%;display: inline-block;">{{sulutionDeatail.realCount}}</span>
+                        <span style="width: 35%;display: inline-block;">{{solutionDetail.realCount}}</span>
                         <span>前台浏览数:</span>
-                        <el-input style="width:40%;float:right" v-model="sulutionDeatail.setCount" placeholder="请输入"></el-input>
+                        <el-input style="width:40%;float:right" v-model="solutionDetail.setCount" placeholder="请输入"></el-input>
                     </span>
                 </div>
             </el-col>
             <el-col :span="12" :offset="6">
                 <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">发布时间:</span>
-                    <span class="status_type">{{sulutionDeatail.releaseTime}}</span>
+                    <span class="status_type">{{solutionDetail.releaseTime}}</span>
                 </div>
             </el-col>
             <el-col :span="12" :offset="6">
                 <div class="grid-content bg-purple-dark status" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">是否启用:</span>
-                    <el-select v-model="sulutionDeatail.enabled" placeholder="请选择二级类目">
+                    <el-select v-model="solutionDetail.enabled" placeholder="请选择二级类目">
                         <el-option
                         v-for="item in statusList"
                         :key="item.value"
@@ -136,7 +141,7 @@
                 <div class="grid-content bg-purple-dark hrefType" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">跳转类型:</span>
                     <span class="status_type">
-                        <el-select v-model="sulutionDeatail.forwardType" placeholder="请选择二级类目" style="width:30%" @change="linkChange">
+                        <el-select v-model="solutionDetail.forwardType" placeholder="请选择二级类目" style="width:30%" @change="linkChange">
                             <el-option
                             v-for="item in hrefTypeList"
                             :key="item.value"
@@ -144,7 +149,7 @@
                             :value="item.value">
                             </el-option>
                         </el-select>
-                        <el-input v-show="defaultLink == 2" v-model="sulutionDeatail.forwardUrl" placeholder="请填写html地址"></el-input>
+                        <el-input v-show="solutionDetail.forwardType == 2" v-model="solutionDetail.forwardUrl" placeholder="请填写html地址"></el-input>
                     </span>
                 </div>
             </el-col>
@@ -155,7 +160,7 @@
                         class="status_type" 
                         type="textarea" 
                         :rows='6' 
-                        v-model="sulutionDeatail.solutionSummary" 
+                        v-model="solutionDetail.solutionSummary" 
                         placeholder="100个字以内"
                         maxlength="100"
                         show-word-limit>
@@ -166,16 +171,16 @@
                 <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
                     <span class="status_type detail">产品详情:</span>
                     <span class="status_type">
-                        <vue-editor v-model="sulutionDeatail.solutionDescription" @blur="getDetail"></vue-editor>
+                        <vue-editor v-model="solutionDetail.solutionDescription" @blur="getDetail"></vue-editor>
                     </span>
                 </div>
             </el-col>
             <el-col :span="12" :offset="6">
                 <div class="grid-content bg-purple-dark" style="text-align:center">
-                    <el-button type="primary">保存</el-button>
-                    <el-button type="primary">确认发布</el-button>
+                    <el-button @click="save" type="primary">保存</el-button>
+                    <el-button @click="publish" type="primary">确认发布</el-button>
                     <el-button @click="back">取消</el-button>
-                    <el-button>删除</el-button>
+                    <el-button v-if="mode == 'edit'" @click="deleteSolution">删除</el-button>
                 </div>
             </el-col>
         </el-row>
@@ -186,12 +191,12 @@ import { regionData } from 'element-china-area-data';
 import { VueEditor, Quill } from "vue2-editor";
 import BusinessSearch from "./businessSerach";
 import TagsAdd from "./tagsAdd";
-import { loadSolutionDetail } from "@/service/getData"
+import { loadSolutionDetail, solutionUpdate,loadAllCateList, solutionAdd, solutionDelete } from "@/service/getData"
 
 export default{
     data(){
         return{
-            sulutionDeatail:{
+            solutionDetail:{
                 businessId: "",
                 businessName: "",
                 categoryTwoId: "",
@@ -210,9 +215,9 @@ export default{
                 releaseTime: "",
                 setCount: 0,
                 solutionCover: "",
-                solutionDescription: "",
+                solutionDescription: 2,
                 solutionName: "",
-                solutionPrice: '0',
+                solutionPrice: "",
                 solutionSource: 1,
                 solutionSummary: ""
             },
@@ -268,13 +273,37 @@ export default{
     },
     mounted(){
         if(this.solutionInfo.id){
-            this.mode == 'edit';
+            this.mode = 'edit';
             loadSolutionDetail({id:this.solutionInfo.id}).then(res=>{
-                this.sulutionDeatail = res.data;
+                this.solutionDetail = res.data;
             })
+            this.$store.commit('saveSolutionInfo',"")
         }
+        this.getAllCate();
     },
     methods:{
+        // 获取所有类目列表
+        getAllCate(){
+            // 获取所有类目，包括一级和二级
+            loadAllCateList({}).then(res=>{
+                let firstCateList = res.data;
+                for(var item of firstCateList){
+                    if(item.categoryName == '行业解决方案'){
+                        this.secondCateList = item.childrenList;
+                        break;
+                    }
+                }
+            })
+        },
+        getSecondCate(){
+            for(var item of this.secondCateList){
+                if(item.id == this.solutionDetail.categoryTwoId){
+                    this.solutionDetail.categoryTwoName = item.categoryName;
+                    break;
+                }
+            }
+            console.log('dafdsafsdfasdf',this.solutionDetail.categoryTwoName)
+        },
 
         handleClose(tag) {
             this.relateKeywordList.splice(this.relateKeywordList.indexOf(tag), 1);
@@ -327,9 +356,72 @@ export default{
             this.defaultLink = this.hrefType
         },
 
-        // 查询标签
-        getTag(){
+        // 获取标签
+         getNewTags(newTags,id){
+            this.solutionDetail.keyWordId = id
+            this.solutionDetail.keyWordName = newTags;
+            if(this.solutionDetail.keyWordName.length > 0){
+                this.solutionDetail.keyWordName = this.solutionDetail.keyWordName.substring(0,this.solutionDetail.keyWordName.length - 1);
+                this.solutionDetail.keyWordId = id.substring(0,id.length - 1);
+            }
+        },
 
+        getShopName(name){
+            this.solutionDetail.businessName = name;
+        },
+
+         // 服务商选择
+        businessSelect(business){
+            this.solutionDetail.businessName = business.value;
+            this.solutionDetail.businessId = business.id;
+        },
+
+        // 保存
+        save(){
+            this.solutionDetail.solutionCover = this.url;
+            this.solutionDetail.solutionSource = 2;
+            if(this.mode == 'edit'){
+                solutionUpdate(this.solutionDetail).then(res=>{
+                    if(res.code == 200){
+                        this.$message.success('修改成功');
+                        this.$router.push('/solve');
+                    }else{
+                        this.$message.warning(res.msg)
+                    }
+                })
+            }else{
+                solutionAdd(this.solutionDetail).then(res=>{
+                    if(res.code == 200){
+                        this.$message.success('添加成功');
+                        this.$router.push('/solve');
+                    }else{
+                        this.$message.warning(res.msg)
+                    }
+                })
+            }
+        },
+
+        // 确认发布
+        publish(){
+           this.solutionDetail.publish = 1; 
+           this.save();
+        },
+
+        deleteSolution(){
+            this.$confirm('此操作将永久删除该解决方案, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                solutionDelete({id:this.solutionDetail.id}).then(res=>{
+                    if(res.code == 200){
+                        this.$message.success('删除成功')
+                        this.$router.push('/solve');
+                    }
+                })
+            }).catch(() => {
+                this.$message.info('已取消删除')         
+            });
         }
     }
 }

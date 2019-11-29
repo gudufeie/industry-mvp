@@ -46,5 +46,8 @@ export default{
         state.topEditData=topEdit;
     },
 
-
+    // 保存服务信息
+    saveServiceInfo(state,serviceInfo){
+        state.serviceInfo = serviceInfo;
+    }
 }

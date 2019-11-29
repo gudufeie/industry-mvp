@@ -56,7 +56,7 @@
                     <div class="grid-content bg-purple">
                         <p>
                             <span class="title">擅长 : </span>
-                            <tags-add @getNewTags="getNewTags" :tags="special" style="display:inline-block;margin-left:28px;"></tags-add>
+                            <tags-add @getNewTags="getNewTags" :tags="special" :tagsId="special" style="display:inline-block;margin-left:28px;"></tags-add>
                         </p>
                     </div>
                 </el-col>
@@ -118,7 +118,7 @@
                     <el-table-column
                     label="商品图片">
                         <template slot-scope="{row,$index}">
-                            <span v-if="!!!productShow[$index]">{{row.productPic}}</span>
+                            <img v-if="!!!productShow[$index]" :src="row.productPic" alt="" style="height:100%;width:100%;">
                             <el-input v-if="!!productShow[$index]" v-model="row.productPic"></el-input>
                         </template>
                     </el-table-column>
@@ -630,6 +630,15 @@ export default{
             this.productBtnShow[index]= false;
             this.$set(this.productShow,index,false)
             this.$set(this.productBtnShow,index,false)
+            row.productPic = 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg'
+            updateProduct(row).then(res=>{
+                if(res.code == 200){
+                    this.$message.success('修改成功');
+                    this.getProductList();
+                }else{
+                    this.$message.warning(res.msg)
+                }
+            })
         },
         
         // 产品上下线

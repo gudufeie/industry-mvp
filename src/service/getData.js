@@ -140,7 +140,7 @@ export const getProductCount = (params) =>{
 //   "productPrice": 0,
 // }
 export const updateProduct = (params) =>{
-    return post(baseUrl + '/businessproudct/edit', params)
+    return postList(baseUrl + '/businessproudct/edit', params)
 }
 
 // 查询服务商发布的产品列表
@@ -255,6 +255,32 @@ export const serviceUpdate = (params) =>{
     return postList(baseUrl + '/businessService/edit', params)
 }
 
+// 服务库列表查询
+// params = object
+export const loadBusiServiceList = (params) =>{
+    return postList(baseUrl + '/businessService/list', params)
+}
+
+// 服务详情
+// params = {
+//     id:'string'
+// }
+export const loadServiceDetail = (params) =>{
+    return post(baseUrl + '/businessService/info', params)
+}
+
+// 服务新增
+// params = object
+export const serviceAdd = (params) =>{
+    return postList(baseUrl + '/businessService/save', params)
+}
+
+// 服务修改
+// params = object
+export const serviceEdit = (params) =>{
+    return postList(baseUrl + '/businessService/edit', params)
+}
+
 
 // -----------------------------------------------------发布的解决方案------------------------------
 // 解决方案上下线
@@ -302,6 +328,17 @@ export const loadSolutionList = (params) =>{
 // }
 export const solutionUpdate = (params) =>{
     return postList(baseUrl + '/businesssolution/edit', params)
+}
+
+// 解决方案新增
+// params = {
+//       id:string,   解决方案ID 
+//       solutionName: string,
+//       solutionPrice: string,
+//       solutionDescription:string
+// }
+export const solutionAdd = (params) =>{
+    return postList(baseUrl + '/businesssolution/save', params)
 }
 
 // 解决方案详情

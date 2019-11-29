@@ -182,11 +182,11 @@
               background
               @size-change="handleSizeChange"
               @current-change="handleCurrentChange"
-              :current-page="currentPage4"
+              :current-page="pageNum"
               :page-sizes="[10, 25, 50]"
-              :page-size="100"
+              :page-size="pageSize"
               layout="total, sizes, prev, pager, next, jumper"
-              :total="400"
+              :total="pageTotal"
               prev-text="上一页"
               next-text="下一页">
             </el-pagination>
@@ -202,10 +202,6 @@ import qs from 'qs'
 export default {
     data(){
         return{
-        currentPage1: 5,
-        currentPage2: 5,
-        currentPage3: 5,
-        currentPage4: 4,
         cateSortOptions:{},
         expands:[],
         tableData: [],
@@ -221,7 +217,10 @@ export default {
               {value: '0',label: '全部'},
               {value: '1',label: '启用中'},
               {value: '2',label: '已下线'},
-            ]
+            ],
+          pageNum:1,
+          pageSize:10,
+          pageTotal:1
         }
     },
     components:{
@@ -293,10 +292,12 @@ export default {
           })
         },
         handleSizeChange(val) {
-            console.log(`每页 ${val} 条`);
+            this.pageSize = val;
+            this.loadFirstCate();
         },
         handleCurrentChange(val) {
-            console.log(`当前页: ${val}`);
+            this.pageNum = val;
+            this.loadFirstCate();
         },
         secondCate(value){
           console.log('数据',value)
@@ -379,9 +380,12 @@ export default {
           let params = {
             typeId:this.type,
             state:this.status,
+            pageNum:this.pageNum,
+            pageSize:this.pageSize
           }
           loadFirstCateList(params).then(res=>{
-            this.tableData = res.data.productCategoryList;
+            this.tableData = res.data.dataList;
+            this.pageTotal = res.data.totalCount;
           });
           
         },

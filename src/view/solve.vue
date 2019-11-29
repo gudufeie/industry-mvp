@@ -92,8 +92,10 @@
                         width="180">
                         </el-table-column>
                         <el-table-column
-                        prop="solutionSource"
                         label="发布来源">
+                            <template slot-scope="{row}">
+                                <span>{{row.solutionSource == 2?'人工采编':'服务商发布'}}</span>
+                            </template>
                         </el-table-column>
                         <el-table-column
                         prop="releaseId"
@@ -213,13 +215,13 @@ export default {
             publishOrigin:1,
             publishOriginList:[
                 {
-                value: 1,
+                value: '',
                 label: '全部'
                 }, {
                 value: 2,
                 label: '人工采编'
                 }, {
-                value: 3,
+                value: 1,
                 label: '服务商发布'
                 }
             ],
@@ -236,12 +238,12 @@ export default {
         // 获取解决方案列表
         getSolutionList(){
             let params ={
-                businessId: "",
+                businessId: "1",
                 categoryTwoId: this.secondCate,
                 keyWordName: this.searchName,
                 pageNum: this.pageNum,
                 pageSize: this.pageSize,
-                publish: 1
+                publish: ''
             }
             loadSolutionList(params).then(res=>{
                 if(res.data.dataList){
@@ -298,6 +300,7 @@ export default {
                 solutionDelete({id:row.id}).then(res=>{
                     if(res.code == 200){
                         this.$message.success('删除成功')
+                        this.getSolutionList();
                     }
                 })
             }).catch(() => {

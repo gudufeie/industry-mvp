@@ -177,10 +177,12 @@ export default {
             })
         },
         handleSizeChange(val) {
-            console.log(`每页 ${val} 条`);
+            this.pageSize = val;
+            this.loadKeywordList();
         },
         handleCurrentChange(val) {
-            console.log(`当前页: ${val}`);
+            this.currentPage = val;
+            this.loadKeywordList();
         },
 
 
@@ -188,13 +190,12 @@ export default {
         loadKeywordList(){
             let params ={
               keyWordName:this.keywordName,
-              pageNum:1,
-              pageSize:10  
+              pageNum:this.currentPage,
+              pageSize:this.pageSize  
             }
             loadKeyword(params).then(res=>{
                 this.tableData = res.data.dataList;
-                this.currentPage = res.data.totalCount;
-                this.pageTotal =  res.data.totalPage;
+                this.pageTotal =  res.data.totalCount;
             })
         },
 

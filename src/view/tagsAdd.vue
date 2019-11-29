@@ -90,10 +90,12 @@ import { searchTag, loadAllCateList, tagsAdd} from "@//service/getData"
                 haveTags:false,
                 firstCateName:'',
                 secondCateName:'',
+                tagsIdList:[]
             }
         },
         props:{
-            tags:String
+            tags:String,
+            tagsId:String
         },
         watch:{
             tags(){
@@ -101,11 +103,19 @@ import { searchTag, loadAllCateList, tagsAdd} from "@//service/getData"
                     this.tagsList = this.tags.split(',');
                     for(var tag of this.tagsList){
                         if(tag == ''){
-                            this.tagsList.remove(item)
+                            this.tagsList.remove(tag)
                         }
                     }
                 }
-            }
+                if(this.tagsId){
+                    this.tagsIdList = this.tagsId.split(',')
+                    for(var tagId of this.tagsIdList){
+                        if(tagId == ''){
+                            this.tagsIdList.remove(tagId)
+                        }
+                    }
+                }
+            },
         },
         mounted(){
             this.getAllCate();
@@ -113,6 +123,16 @@ import { searchTag, loadAllCateList, tagsAdd} from "@//service/getData"
         methods:{
             handleClose(tag) {
                 this.tagsList.splice(this.tagsList.indexOf(tag), 1);
+                this.tagsIdList.splice(this.tagsList.indexOf(tag),1);
+                var special = '';
+                for(var item of this.tagsList){
+                    special = item + ',' + special;
+                }
+                var tagsIds = "";
+                for(var item of this.tagsIdList){
+                    tagsIds = item + ',' + tagsIds;
+                }
+                this.$emit('getNewTags',special,tagsIds)
             },
 
             showInput() {
@@ -153,11 +173,17 @@ import { searchTag, loadAllCateList, tagsAdd} from "@//service/getData"
             // 获取已有标签
             getExistTags(tag){
                 this.tagsList.unshift(tag.keyWordName);
+                this.tagsIdList.unshift(tag.id);
+                console.log('选择后的',this.tagsList,this.tagsIdList)
                 var special = '';
                 for(var item of this.tagsList){
                     special = item + ',' + special;
                 }
-                this.$emit('getNewTags',special,tag.id)
+                var tagsIds = "";
+                for(var item of this.tagsIdList){
+                    tagsIds = item + ',' + tagsIds;
+                }
+                this.$emit('getNewTags',special,tagsIds)
             },
 
             // 获取所有类目列表

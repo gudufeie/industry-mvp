@@ -73,7 +73,7 @@ export default {
         relationName:'',
         currentPage: 1,
         pageSize:10,
-        pageTotal:0,
+        pageTotal:1,
         tableData: [],
         }
     },
@@ -120,11 +120,17 @@ export default {
                     });          
                 });
         },
+
+        // 更换每页个数
         handleSizeChange(val) {
-            console.log(`每页 ${val} 条`);
+            this.pageSize = val;
+            this.loadRelationKey();
         },
+
+        // 点击指定页面跳转
         handleCurrentChange(val) {
-            console.log(`当前页: ${val}`);
+            this.currentPage = val;
+            this.loadRelationKey();
         },
 
         // 获取所有关联关键词
@@ -137,9 +143,7 @@ export default {
             loadRelationKeyList(params).then(res=>{
                 if(!!res.data.dataList){
                     this.tableData = res.data.dataList;
-                    this.currentPage = res.data.pageNum,
-                    this.pageTotal = res.data.totalCount,
-                    this.pageSize = res.data.pageSize
+                    this.pageTotal = res.data.totalCount;
                 }
             })
         },
