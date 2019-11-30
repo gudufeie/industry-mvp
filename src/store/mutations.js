@@ -54,5 +54,10 @@ export default{
     // 保存分发楼层信息
     saveDispenseDetail(state,dispenseDetail){
         state.dispenseDetail = dispenseDetail;
+    },
+
+    // 保存分发楼层信息
+    saveDispenseDetail(state,dispenseDetail){
+        state.dispenseDetail = dispenseDetail;
     }
 }
