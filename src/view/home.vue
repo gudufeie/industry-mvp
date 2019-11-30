@@ -70,20 +70,6 @@
                                 </template>
                             </el-table-column>
                         </el-table>
-                        <!-- <div class="block">
-                            <el-pagination
-                            background
-                            @size-change="handleSizeChange"
-                            @current-change="handleCurrentChange"
-                            :current-page="currentPage4"
-                            :page-sizes="[10, 25, 50]"
-                            :page-size="100"
-                            layout="total, sizes, prev, pager, next, jumper"
-                            :total="400"
-                            prev-text="上一页"
-                            next-text="下一页">
-                            </el-pagination>
-                        </div> -->
                     </div>
                 </el-col>
             </el-row>
@@ -104,7 +90,7 @@
                     <div class="grid-content bg-purple-dark">
                         <el-table
                             :header-cell-style="{color:'#000'}"
-                            :data="tableData"
+                            :data="dispenseContent"
                             border
                             style="width: 100%">
                             <el-table-column
@@ -113,16 +99,16 @@
                             width="60">
                             </el-table-column>
                             <el-table-column
-                            prop="name"
+                            prop="navigationTitle"
                             label="配置词"
                             width="120">
                             </el-table-column>
                             <el-table-column
-                            prop="name"
+                            prop="description"
                             label="描述">
                             </el-table-column>
                             <el-table-column
-                            prop="name"
+                            prop="sort"
                             label="排序"
                             width="80">
                             </el-table-column>
@@ -130,37 +116,28 @@
                             prop="name"
                             label="发布状态"
                             width="100">
+                                <template slot-scope="{row}">
+                                    <span>{{row.enable == 1?'启用':'下线'}}</span>
+                                </template>
                             </el-table-column>
                             <el-table-column
-                            prop="name"
                             label="最近更新时间"
                             width="180">
+                                <template slot-scope="{row}">
+                                    <span>{{row.updateTime | formatDate}}</span>
+                                </template>
                             </el-table-column>
                             <el-table-column
                             prop="name"
                             label="管理"
-                            width="210">
-                                <template slot-scope="scope">
-                                    <el-button size="mini" @click="handleView(scope.$index, scope.row)">编辑</el-button>
-                                    <el-button size="mini" @click="handleView(scope.$index, scope.row)">下线</el-button>
-                                    <el-button size="mini" @click="handleView(scope.$index, scope.row)">删除</el-button>
+                            width="220">
+                                <template slot-scope="{row,$index}">
+                                    <el-button size="mini" @click="dispenseUpdate(row,$index)">编辑</el-button>
+                                    <el-button size="mini" @click="dispenseOnOrOut(row,$index)">{{row.enable == 1?'下线':'启用'}}</el-button>
+                                    <el-button size="mini" @click="dispenseDelete(row,$index)">删除</el-button>
                                 </template>
                             </el-table-column>
                         </el-table>
-                        <!-- <div class="block">
-                            <el-pagination
-                            background
-                            @size-change="handleSizeChange"
-                            @current-change="handleCurrentChange"
-                            :current-page="currentPage4"
-                            :page-sizes="[10, 25, 50]"
-                            :page-size="100"
-                            layout="total, sizes, prev, pager, next, jumper"
-                            :total="400"
-                            prev-text="上一页"
-                            next-text="下一页">
-                            </el-pagination>
-                        </div> -->
                     </div>
                 </el-col>
             </el-row>
@@ -334,12 +311,13 @@
     </div>
 </template>
 <script>
-import {getTopdata,changeTopstatus,deleteTop} from '@/service/getData'
+import {getTopdata,changeTopstatus,deleteTop,getDispenseContent,loadIndustrySolution} from '@/service/getData'
 export default {
     data(){
         return{
             topdata:'',
             topCategory:{},
+            dispenseContent:{},
             options: [{
                 value: '选项1',
                 label: '黄金糕'
@@ -368,7 +346,8 @@ export default {
                 {label:'推荐',value:1}
             ],
             firstCate:1,
-            currentPage4:1
+            currentPage4:1,
+            industrySolutionList:[]
         }
     },
     created(){
@@ -380,8 +359,14 @@ export default {
             let that=this
             let params={}
             getTopdata(params).then(res =>{
-                that.topdata=res.data
+                that.topdata=res.data;
             }) 
+
+            getDispenseContent(params).then(res =>{
+                that.dispenseContent = res.data;
+            })
+            this.getIndustrySolution();
+
         },
         // 编辑顶部楼层
         handleTopEdit(index,row){
@@ -412,13 +397,52 @@ export default {
         },
         // 删除顶部楼层
         handleTopDelete(index,row){
+            this.$confirm('此操作将永久删除该楼层, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                deleteTop({id:row.id}).then(res=>{
+                    if(res.code == 200){
+                        this.$message.success('删除成功');
+                        this.init()
+                    }
+                })
+            }).catch(() => {
+                this.$message.info('已取消删除')         
+            });
+        },
+
+        // 分发楼层上下线
+        dispenseOnOrOut(row,index){
+            let enable = Math.abs(row.enable-1);
             let params={
                 id:row.id,
+                enable:enable
             }
-            deleteTop(params).then(res =>{
-                  this.init()
+            changeTopstatus(params).then(res =>{
+                this.init()
             })
         },
+
+        // 分发楼层删除
+        dispenseDelete(row,index){
+            this.$confirm('此操作将永久删除该楼层, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                deleteTop({id:row.id}).then(res=>{
+                    if(res.code == 200){
+                        this.$message.success('删除成功');
+                        this.init()
+                    }
+                })
+            }).catch(() => {
+                this.$message.info('已取消删除')         
+            });
+        },
+
         // 改变分页显示数量
         handleSizeChange(){
 
@@ -438,19 +462,6 @@ export default {
             this.$router.push({
                 name:'productDetail'
             })
-        },
-
-        handleRemove(file, fileList) {
-            console.log(file, fileList);
-        },
-        handlePreview(file) {
-            console.log(file);
-        },
-        handleExceed(files, fileList) {
-            this.$message.warning(`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
-        },
-        beforeRemove(file, fileList) {
-            return this.$confirm(`确定移除 ${ file.name }？`);
         },
 
         handleClick(tab, event) {
@@ -476,6 +487,28 @@ export default {
         toSolutionDetail(){
             this.$router.push({
                 path:'/solutionDetail'
+            })
+        },
+
+        // 分发楼层编辑
+        dispenseUpdate(row,index){
+            this.$store.commit('saveDispenseDetail',row)
+            this.$router.push({
+                path:'/distributeFloorDetail'
+            })
+        },
+
+        // 查询行业解决方案列表
+        getIndustrySolution(){
+            let params = {
+                id:'',
+                pageNum:1,
+                pageSize:10
+            }
+            loadIndustrySolution(params).then(res=>{
+                if(res.code == 200){
+                    this.industrySolutionList = res.data;
+                }
             })
         }
     }

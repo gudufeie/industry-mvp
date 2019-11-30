@@ -7,7 +7,7 @@
                       <span class="star">*</span>
                   </span>
                   <el-input 
-                    v-model="name" 
+                    v-model="dispenseInfo.navigationTitle" 
                     placeholder="10个字以内"
                     maxlength="10"
                     show-word-limit>
@@ -24,7 +24,7 @@
                   <el-input 
                     type="textarea"
                     :rows="2"
-                    v-model="name" 
+                    v-model="dispenseInfo.description" 
                     placeholder="30个字以内"
                     maxlength="30"
                     show-word-limit>
@@ -38,7 +38,7 @@
                  <span class="status_type">是否启用
                      <span class="star">*</span>
                  </span>
-                 <el-select v-model="status" placeholder="请选择">
+                 <el-select v-model="dispenseInfo.enable" placeholder="请选择">
                     <el-option
                     v-for="item in statusList"
                     :key="item.value"
@@ -55,12 +55,12 @@
                  <span class="status_type">一级类目
                      <span class="star">*</span>
                  </span>
-                 <el-select v-model="firstCate" placeholder="请选择一级目录">
+                 <el-select v-model="dispenseInfo.categoryOneId" placeholder="请选择一级目录">
                     <el-option
-                    v-for="item in firstCateList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
+                    v-for="(item,index) in categoryOneList"
+                    :key="index"
+                    :label="item.categoryName"
+                    :value="item.id">
                     </el-option>
                  </el-select>
                 </div>
@@ -73,7 +73,7 @@
                       <span class="star">*</span>
                   </span>
                   <el-input 
-                    v-model="name"
+                    v-model="dispenseInfo.sort"
                     placeholder="请输入">
                   </el-input>  
                  </div>
@@ -83,7 +83,7 @@
             <el-col :span="20" :offset="2">
                 <div class="grid-content bg-purple">
                  <span class="status_type">最近更新时间</span>
-                 <span class="status_type" style="text-align:left;width:76%">{{updateTime}}</span>
+                 <span class="status_type" style="text-align:left;width:76%">{{dispenseInfo.updateTime | formatDate}}</span>
                 </div>
                 <el-divider></el-divider>
             </el-col>
@@ -91,12 +91,12 @@
        <el-row :gutter="20" class="table-row">
             <el-col :span="20" :offset="2">
                 <div class="add-wrap">
-                    <el-button size="mini" @click="dialogVisible = true">新增</el-button>
+                    <el-button size="mini" @click="addKeyword">新增</el-button>
                 </div>
                 <div class="grid-content bg-purple">
                  <el-table
                     :header-cell-style="{color:'#000'}"
-                    :data="tableData"
+                    :data="dispenseTwoData"
                     border
                     style="width: 100%">
                     <el-table-column
@@ -105,34 +105,33 @@
                     width="60">
                     </el-table-column>
                     <el-table-column
-                    prop="name"
+                    prop="title"
                     label="配置词"
                     width="100">
                     </el-table-column>
                     <el-table-column
-                    prop="address"
+                    prop="categoryName"
                     label="二级类目"
                     width="120">
                     </el-table-column>
                     <el-table-column
-                    prop="name"
+                    prop="lable"
                     label="标签">
                     </el-table-column>
                     <el-table-column
-                    prop="name"
+                    prop="sort"
                     label="排序"
                     width="80">
                     </el-table-column>
                     <el-table-column
-                    prop="name"
+                    prop="keyWordName"
                     label="关键词">
                     </el-table-column>
                     <el-table-column
-                    prop="name"
                     label="操作"
                     width="150">
                         <template slot-scope="scope">
-                            <el-button size="mini" @click="handleView(scope.$index, scope.row)">编辑</el-button>
+                            <el-button size="mini" @click="keywordEdit(scope.$index, scope.row)">编辑</el-button>
                             <el-button size="mini" @click="handleView(scope.$index, scope.row)">删除</el-button>
                         </template>
                     </el-table-column>
@@ -162,7 +161,7 @@
             <div class="name">
                 <span class="key-title">标题<span class="star">*</span></span>
                 <el-input 
-                    v-model="name" 
+                    v-model="title" 
                     placeholder="10个字以内"
                     maxlength="10"
                     show-word-limit>
@@ -170,9 +169,20 @@
             </div>
             <div class="name">
                 <span class="key-title">二级类目<span class="star">*</span></span>
-                <el-select v-model="firstCate" placeholder="请选择二级类目">
+                <el-select v-model="categoryTwoId" placeholder="请选择二级类目">
                     <el-option
-                    v-for="item in firstCateList"
+                    v-for="(item,index) in categoryTwoList"
+                    :key="index"
+                    :label="item.categoryName"
+                    :value="item.id">
+                    </el-option>
+                </el-select>
+            </div>
+            <div class="name">
+                <span class="key-title">是否展示标签<span class="star">*</span></span>
+                <el-select v-model="tagId" placeholder="请选择">
+                    <el-option
+                    v-for="item in tagsList"
                     :key="item.value"
                     :label="item.label"
                     :value="item.value">
@@ -180,20 +190,9 @@
                 </el-select>
             </div>
             <div class="name">
-                <span class="key-title">二级类目<span class="star">*</span></span>
-                <el-select v-model="firstCate" placeholder="请选择二级类目">
-                    <el-option
-                    v-for="item in firstCateList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                    </el-option>
-                </el-select>
-            </div>
-            <div class="name">
-                <span class="key-title">标题<span class="star">*</span></span>
+                <span class="key-title">排序<span class="star">*</span></span>
                 <el-input 
-                    v-model="name" 
+                    v-model="sort" 
                     placeholder="10个字以内"
                     maxlength="10"
                     show-word-limit>
@@ -247,54 +246,90 @@
                 </el-table-column>
             </el-table>
             <span slot="footer" class="dialog-footer">
-                <el-button type="primary" @click="dialogVisible = false">保存</el-button>
+                <el-button type="primary" @click="saveKeywordDetail">保存</el-button>
             </span>
         </el-dialog>
     </div>
 </template>
 <script>
-
+import { loadAllCateList, addDispense, loadDispenseTwo, addEditKeywordDetail } from "../service/getData";
 export default {
     data(){
         return{
+            dispenseInfo:{
+                categoryOneId: "",
+                description: "",
+                enable: 1,
+                id: '',
+                navigationTitle: "",
+                sort: 0,
+                updateTime: ""
+            },
             dialogVisible:false,
-            name: '',
-            status:1,
-            relateKeywordList:[],
             inputVisible: false,
             inputValue: '',
-            firstCateList:[],
-            secondCateList:[],
-            firstCate:'',
-            secondCate:'',
-            updateTime:'',
+            categoryOneList:[],
             statusList:[
                 {label:'是',value:1},
                 {label:'否',value:0}
             ],
-            relationName:'',
-            keyWordRelationname:[],
-            relateKeywordList:[],
-            keyworkId:'',
-            firstCateId:'',
-            secondCateId:'',
-            key:{},
             tableData: [{
                 date: '2016-05-02',
                 name: '王小虎',
                 address: '上海市普陀区金沙江路 1518 弄'
             }],
+            dispenseTwoData:[],
+            tagId:1,
+            tagsList:[
+                {label:'是',value:1},
+                {label:'否',value:0}
+            ],
+            categoryTwoId:'',
+            categoryTwoList:[],
+            sort:'',
+            title:'',
+            dispenseId:'',
+            keywordId:''
         }
     },
     computed: {
-        keywordInfo(){
-            return this.$store.state.keywordInfo;
+        dispenseDetail(){
+            return this.$store.state.dispenseDetail;
         }
     },
     mounted(){
-        // this.getKeyword();
+        if(this.dispenseDetail.id){
+            this.dispenseId = this.dispenseDetail.id;
+            this.dispenseInfo.navigationTitle = this.dispenseDetail.navigationTitle;
+            this.dispenseInfo.id = this.dispenseDetail.id;
+            this.dispenseInfo.description = this.dispenseDetail.description;
+            this.dispenseInfo.categoryOneId = this.dispenseDetail.categoryOneId;
+            this.dispenseInfo.enable = this.dispenseDetail.enable;
+            this.dispenseInfo.sort = this.dispenseDetail.sort;
+            this.dispenseInfo.updateTime = this.dispenseDetail.updateTime;
+            this.getDispenseTwo(this.dispenseDetail.id);
+            this.$store.commit('saveDispenseDetail',"")
+        }else{
+            this.dispenseInfo.id = '';
+        }
+        this.getAllCates();
     },
     methods:{
+        // 初始化获取所有类目
+        getAllCates(){
+            loadAllCateList({}).then(res=>{
+                if(res.data){
+                    this.categoryOneList = res.data;
+                }
+            })
+        },
+
+        // 查询二级内容
+        getDispenseTwo(id){
+            loadDispenseTwo({id:id}).then(res=>{
+                this.dispenseTwoData = res.data;
+            })
+        },
         getKeyword(){
             if(this.keywordInfo){
                 let key = this.keywordInfo;
@@ -383,81 +418,99 @@ export default {
             })
         },
 
-        // 添加关键字
+        // 添加分发楼层
         save(){
-            if(!!!this.name.trim()){
-                this.$message({
-                    message:'请输入关键词！!',
-                    type: "warning",
-                    center:true
-                })
+            if(!!!this.dispenseInfo.navigationTitle){
+                this.$message.warning('请输入标题');
                 return false;
             }
-            if(!!!this.keyworkId){
-                let params = {
-                    categoryOneId:this.firstCateId, 
-                    categoryOneName:this.firstCate,
-                    categoryTwoId:this.secondCateId,
-                    categoryTwoName:this.secondCate,
-                    enable:this.status,
-                    keyWordName:this.name,
-                    keyWordRelationsDTOs:this.keyWordRelationname
-                }
-                addKeywork(params).then(res=>{
-                    if(res.code == 200){
-                        this.$message({
-                            message:'添加成功!',
-                            type: "success",
-                            center:true
-                        })
-                        this.$router.push({
-                            path:'/keyword'
-                        })
-                    }else{
-                        this.$message({
-                            message:res.msg,
-                            type: "warning",
-                            center:true
-                        })
-                        return false;
-                    }
-                })
-            }else{
-                let params = {
-                    id:this.keyworkId,
-                    categoryOneId:this.firstCateId, 
-                    categoryOneName:this.firstCate,
-                    categoryTwoId:this.secondCateId,
-                    categoryTwoName:this.secondCate,
-                    enable:this.status,
-                    keyWordName:this.name,
-                    keyWordRelationsDTOs:this.keyWordRelationname
-                }
-                updateKeyword(params).then(res=>{
-                    if(res.code == 200){
-                        this.$message({
-                            message:'修改成功!',
-                            type: "success",
-                            center:true
-                        })
-                        this.$router.push({
-                            path:'/keyword'
-                        })
-                    }else{
-                        this.$message({
-                            message:res.msg,
-                            type: "warning",
-                            center:true
-                        })
-                        return false;
-                    }
-                })
+            if(!!!this.dispenseInfo.categoryOneId){
+                this.$message.warning('请选择一级类目');
+                return false;
             }
+            if(!!!this.dispenseInfo.sort){
+                this.$message.warning('请输入排序');
+                return false;
+            }
+            let params = {
+                id: this.dispenseInfo.id,
+                navigationTitle:this.dispenseInfo.navigationTitle,
+                description:this.dispenseInfo.description,
+                categoryOneId:this.dispenseInfo.categoryOneId,
+                enable:this.dispenseInfo.enable,
+                sort:this.dispenseInfo.sort
+            }
+            addDispense(params).then(res=>{
+                if(res.code == 200){
+                    this.$message.success('添加成功');
+                    this.$router.push('/home')
+                }else{
+                    this.$message.warning(res.msg)
+                }
+            })
         },
 
         // 添加关键词明细
         addKeywordDetail(){
             console.log('添加关键词明细')
+        },
+
+        addKeyword(){
+            this.dialogVisible = true;
+            for(var item of this.categoryOneList){
+                if(item.id == this.dispenseInfo.categoryOneId){
+                    this.categoryTwoList = item.childrenList;
+                }
+            }          
+        },
+
+        // 新增关键词明细
+        saveKeywordDetail(){
+          if(!!!this.dispenseInfo.id){
+              this.$message.warning('请先添加热搜词');
+              return false;
+          }else{
+            if(!!!this.title){
+                this.$message.warning('请输入标题');
+                return false;
+            }
+            if(!!!this.categoryTwoId){
+                this.$message.warning('请选择二级类目');
+                return false;
+            }
+            if(!!!this.sort){
+                this.$message.warning('请输入排序');
+                return false;
+            }
+              let params ={
+                  parentId: this.dispenseInfo.id,
+                  sort: this.sort,
+                  categoryTwoId: this.categoryTwoId,
+                  content:this.categoryTwoId,
+                  title:this.title,
+                  label: this.tagId
+              }
+
+            addEditKeywordDetail(params).then(res=>{
+                if(res.code == 200){
+                    this.$message.success('添加成功');
+                    this.dialogVisible = false;
+                    this.getDispenseTwo(this.dispenseId);
+                }else{
+                    this.$message.warning(res.msg)
+                }
+            })
+          }    
+        },
+
+        keywordEdit(index,row){
+            
+            this.dialogVisible = true;
+            this.keywordId = row.id;
+            this.title = row.title;
+            this.categoryTwoId = row.categoryTwoId;
+            this.sort = row.sort;
+            this.tagId = row.label;
         }
     }
 }
@@ -544,7 +597,8 @@ export default {
     }
     .key-title{
         display: inline-block;
-        width:10%;
+        width:15%;
+        text-align: right;
     }
 
 </style>

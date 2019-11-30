@@ -41,7 +41,7 @@ export default{
         // 保存产品信息
         state.solutionInfo = solutionInfo;
     },
-    // 保存一级类目信息
+    // 保存顶部楼层目信息
     saveTopEditData(state,topEdit){
         state.topEditData=topEdit;
     },
@@ -49,5 +49,10 @@ export default{
     // 保存服务信息
     saveServiceInfo(state,serviceInfo){
         state.serviceInfo = serviceInfo;
+    },
+
+    // 保存分发楼层信息
+    saveDispenseDetail(state,dispenseDetail){
+        state.dispenseDetail = dispenseDetail;
     }
 }

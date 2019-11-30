@@ -434,3 +434,30 @@ export const getDeleteTopContent = (params) =>{
     return post(baseUrl + '/contentManager/delete', params)
 }
 
+// --------------------------------分发楼层--------------------------------
+// 获取分发楼层内容
+export const getDispenseContent = (params) =>{
+    return post(baseUrl + '/contentManager/findDispenseContent', params)
+}
+
+//添加或更新分发楼层
+export const addDispense = (params) =>{
+    return post(baseUrl + '/contentManager/saveOrUpdateDispenseContent', params)
+}
+
+// 获取分发楼层二级内容
+export const loadDispenseTwo = (params) =>{
+    return post(baseUrl + '/contentManager/findTwoDispenseContent', params)
+}
+
+// 添加或编辑关键词明细
+export const addEditKeywordDetail = (params) =>{
+    return post(baseUrl + '/contentManager/saveOrUpdateKeyWord', params)
+}
+
+// ------------------------------------行业解决方案------------------------------------
+
+// 查询解决方案列表
+export const loadIndustrySolution = (params) =>{
+    return post(baseUrl + '/contentManager/findSolutionBySolutionSortId', params)
+}

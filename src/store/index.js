@@ -15,7 +15,8 @@ const state = {
 	solutionInfo:{},
 	providerInfo:{},
 	topEditData:'',
-	serviceInfo:{}
+	serviceInfo:{},
+	dispenseDetail:{}     //分发楼层信息
 }
 
 export default new Vuex.Store({
