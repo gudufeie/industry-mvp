@@ -49,7 +49,7 @@
                             width="100"
                             >
                             <template slot-scope="scope">
-                            {{scope.row.enable == '1' ? '已下线' : '已上线'}}
+                            {{scope.row.enable == '1' ? '已上线' : '已下线'}}
                                 </template>
                             </el-table-column>
                             <el-table-column
@@ -65,7 +65,7 @@
                             width="210">
                                 <template slot-scope="scope">
                                     <el-button size="mini" @click="handleTopEdit(scope.$index, scope.row)">编辑</el-button>
-                                    <el-button size="mini" @click="handleTopOffline(scope.$index, scope.row)">下线</el-button>
+                                    <el-button size="mini" @click="handleTopOffline(scope.$index, scope.row)">{{scope.row.enable == '1'?'下线':'上线'}}</el-button>
                                     <el-button size="mini" @click="handleTopDelete(scope.$index, scope.row)">删除</el-button>
                                 </template>
                             </el-table-column>
@@ -117,7 +117,7 @@
                             label="发布状态"
                             width="100">
                                 <template slot-scope="{row}">
-                                    <span>{{row.enable == 1?'启用':'下线'}}</span>
+                                    <span>{{row.enable == 1?'已上线':'已下线'}}</span>
                                 </template>
                             </el-table-column>
                             <el-table-column
@@ -133,7 +133,7 @@
                             width="220">
                                 <template slot-scope="{row,$index}">
                                     <el-button size="mini" @click="dispenseUpdate(row,$index)">编辑</el-button>
-                                    <el-button size="mini" @click="dispenseOnOrOut(row,$index)">{{row.enable == 1?'下线':'启用'}}</el-button>
+                                    <el-button size="mini" @click="dispenseOnOrOut(row,$index)">{{row.enable == 1?'下线':'上线'}}</el-button>
                                     <el-button size="mini" @click="dispenseDelete(row,$index)">删除</el-button>
                                 </template>
                             </el-table-column>
@@ -150,27 +150,24 @@
             </el-row>
             <el-row>
                 <el-col :span="24">
-                    <div class="solution-btn">
-                        <el-button @click="addProduct" type="primary">新增菜单</el-button>
-                        <el-button @click="toSolutionDetail" type="primary">新增解决方案</el-button>
-                    </div>
                     <el-tabs v-model="activeName" @tab-click="handleClick">
                         <el-tab-pane label="解决方案" name="first">
                             <div class="search-nav">
                                 <span>导航</span>
-                                <el-select v-model="firstCate" placeholder="请选择一级类目">
+                                <el-select v-model="navigationId" placeholder="请选择" @change="filterSolution" clearable>
                                     <el-option
-                                    v-for="item in firstCateList"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
+                                    v-for="(item,index) in navigationList"
+                                    :key="index"
+                                    :label="item.navigationName"
+                                    :value="item.id">
                                     </el-option>
                                 </el-select>
+                                <el-button style="float:right;" @click="toSolutionDetail" type="primary">新增解决方案</el-button>
                             </div>
                             <div class="grid-content bg-purple-dark">
                                 <el-table
                                     :header-cell-style="{color:'#000'}"
-                                    :data="tableData"
+                                    :data="industrySolutionList"
                                     border
                                     style="width: 100%">
                                     <el-table-column
@@ -179,59 +176,66 @@
                                     width="60">
                                     </el-table-column>
                                     <el-table-column
-                                    prop="name"
+                                    prop="id"
                                     label="解决方案ID"
-                                    width="120">
+                                    width="100">
                                     </el-table-column>
                                     <el-table-column
-                                    prop="name"
+                                    prop="solutionName"
                                     label="解决方案名称"
+                                    >
+                                    </el-table-column>
+                                    <el-table-column
+                                    prop="categoryName"
+                                    label="二级类目"
                                     width="120">
                                     </el-table-column>
                                     <el-table-column
-                                    prop="name"
-                                    label="二级类目">
+                                    label="是否推荐"
+                                    width="80">
+                                        <template slot-scope="{row}">
+                                            <span>{{row.recommend == 1?'人工推荐':row.recommend == 2?'系统推荐':'否'}}</span>
+                                        </template>
                                     </el-table-column>
                                     <el-table-column
-                                    prop="name"
-                                    label="是否推荐">
-                                    </el-table-column>
-                                    <el-table-column
-                                    prop="name"
+                                    prop="sort"
                                     label="排序"
                                     width="80">
                                     </el-table-column>
                                     <el-table-column
-                                    prop="name"
                                     label="发布状态"
-                                    width="100">
+                                    width="80">
+                                        <template slot-scope="{row}">
+                                            <span>{{row.enable == 1?'已上线':'已下线'}}</span>
+                                        </template>
                                     </el-table-column>
                                     <el-table-column
-                                    prop="name"
                                     label="最近更新时间"
-                                    width="180">
+                                    width="120">
+                                        <template slot-scope="{row}">
+                                            <span>{{row.updateTime | formatDate}}</span>
+                                        </template>
                                     </el-table-column>
                                     <el-table-column
-                                    prop="name"
                                     label="管理"
                                     width="210">
                                         <template slot-scope="scope">
-                                            <el-button size="mini" @click="handleView(scope.$index, scope.row)">编辑</el-button>
-                                            <el-button size="mini" @click="handleView(scope.$index, scope.row)">下线</el-button>
-                                            <el-button size="mini" @click="handleView(scope.$index, scope.row)">删除</el-button>
+                                            <el-button size="mini" @click="solutionEdit(scope.$index, scope.row)">编辑</el-button>
+                                            <el-button size="mini" @click="solutionOnOrOut(scope.$index, scope.row)">{{scope.row.enable == 1?'下线':'上线'}}</el-button>
+                                            <el-button size="mini" @click="solutionDelete(scope.$index, scope.row)">删除</el-button>
                                         </template>
                                     </el-table-column>
                                 </el-table>
                                 <div class="block">
                                     <el-pagination
                                     background
-                                    @size-change="handleSizeChange"
-                                    @current-change="handleCurrentChange"
-                                    :current-page="currentPage4"
+                                    @size-change="solutionSizeChange"
+                                    @current-change="solutionCurrentChange"
+                                    :current-page="solutionPageNum"
                                     :page-sizes="[10, 25, 50]"
-                                    :page-size="100"
+                                    :page-size="solutionPageSize"
                                     layout="total, sizes, prev, pager, next, jumper"
-                                    :total="400"
+                                    :total="solutionTotal"
                                     prev-text="上一页"
                                     next-text="下一页">
                                     </el-pagination>
@@ -240,12 +244,12 @@
                         </el-tab-pane>
                         <el-tab-pane label="导航排序" name="second">
                             <div class="add-nav">
-                                <el-button @click="addProduct" size="mini">新增</el-button>
+                                <el-button @click="addNavigation" type="primary">新增导航</el-button>
                             </div>
                             <div class="grid-content bg-purple-dark">
                                 <el-table
                                     :header-cell-style="{color:'#000'}"
-                                    :data="tableData"
+                                    :data="navigationList"
                                     border
                                     style="width: 100%">
                                     <el-table-column
@@ -254,54 +258,65 @@
                                     width="60">
                                     </el-table-column>
                                     <el-table-column
-                                    prop="name"
-                                    label="导航名称"
+                                    label="导航名称">
+                                        <template slot-scope="{row,$index}">
+                                            <el-input class="nav-input" v-if="!!showEdit[$index]  && row.categoryTwoId != '0'" v-model="row.navigationName"></el-input>
+                                            <span v-if="row.categoryTwoId == '0'">{{row.navigationName}}</span>
+                                            <span v-if="!!!showEdit[$index] && row.categoryTwoId != '0'">{{row.navigationName}}</span>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column
+                                    label="二级类目"
                                     width="120">
+                                        <template slot-scope="{row,$index}">
+                                            <el-select class="nav-input" v-if="!!showEdit[$index] && row.categoryTwoId != '0'" v-model="row.categoryTwoId" placeholder="请选择">
+                                                <el-option
+                                                    v-for="(item,index) in cateTwoKeywords"
+                                                    :key="index"
+                                                    :label="item.categoryName"
+                                                    :value="item.id">
+                                                </el-option>
+                                            </el-select>
+                                            <span v-if="row.categoryTwoId == '0'">/</span>
+                                            <span v-if="!!!showEdit[$index] && row.categoryTwoId != '0'">{{row.categoryName}}</span>
+                                        </template>
                                     </el-table-column>
                                     <el-table-column
-                                    prop="name"
-                                    label="二级类目">
-                                    </el-table-column>
-                                    <el-table-column
-                                    prop="name"
                                     label="排序"
-                                    width="80">
+                                    width="120"> 
+                                        <template slot-scope="{row,$index}">
+                                            <el-input class="nav-input" v-if="!!showEdit[$index] && row.categoryTwoId != '0'" v-model="row.sort"></el-input>
+                                            <span v-if="row.categoryTwoId == '0'">/</span>
+                                            <span v-if="!!!showEdit[$index] && row.categoryTwoId != '0'">{{row.sort}}</span>
+                                        </template>
                                     </el-table-column>
                                     <el-table-column
-                                    prop="name"
                                     label="发布状态"
-                                    width="100">
+                                    width="120">
+                                        <template slot-scope="{row}">
+                                            <span>{{row.publishState == 2?'已上线':row.publishState == 3?'已下线':'未上线'}}</span>
+                                        </template>
                                     </el-table-column>
                                     <el-table-column
-                                    prop="name"
                                     label="最近更新时间"
                                     width="180">
+                                        <template slot-scope="{row}">
+                                            <span>{{row.lastUpdateTime | formatDate}}</span>
+                                        </template>
                                     </el-table-column>
                                     <el-table-column
-                                    prop="name"
                                     label="管理"
                                     width="210">
-                                        <template slot-scope="scope">
-                                            <el-button size="mini" @click="handleView(scope.$index, scope.row)">编辑</el-button>
-                                            <el-button size="mini" @click="handleView(scope.$index, scope.row)">下线</el-button>
-                                            <el-button size="mini" @click="handleView(scope.$index, scope.row)">删除</el-button>
+                                        <template slot-scope="{$index,row}">
+                                            <el-button size="mini" class="disable_btn" v-if="!!!showBtn[$index]&&row.categoryTwoId == '0'" disabled="true">编辑</el-button>
+                                            <el-button size="mini" @click="navEdit($index,row)" v-if="!!!showBtn[$index] && row.categoryTwoId != '0'">编辑</el-button>
+                                            <el-button size="mini" @click="navSubmit($index,row)" v-if="!!showBtn[$index] && row.categoryTwoId != '0'">保存</el-button>
+                                            <el-button size="mini" @click="navOnOrout($index,row)">{{row.publishState == 2?'下线':'上线'}}</el-button>
+                                            <el-button size="mini" @click="navDelete($index,row)" v-if="row.categoryTwoId != '0'">删除</el-button>
+                                            <el-button size="mini" class="disable_btn" v-if="row.categoryTwoId == '0'" disabled="true">删除</el-button>
                                         </template>
                                     </el-table-column>
                                 </el-table>
-                                <div class="block">
-                                    <el-pagination
-                                    background
-                                    @size-change="handleSizeChange"
-                                    @current-change="handleCurrentChange"
-                                    :current-page="currentPage4"
-                                    :page-sizes="[10, 25, 50]"
-                                    :page-size="100"
-                                    layout="total, sizes, prev, pager, next, jumper"
-                                    :total="400"
-                                    prev-text="上一页"
-                                    next-text="下一页">
-                                    </el-pagination>
-                                </div>
                             </div>
                         </el-tab-pane>
                     </el-tabs>
@@ -311,7 +326,10 @@
     </div>
 </template>
 <script>
-import {getTopdata,changeTopstatus,deleteTop,getDispenseContent,loadIndustrySolution} from '@/service/getData'
+import {getTopdata,changeTopstatus,deleteTop,getDispenseContent,
+        loadIndustrySolution,loadAllNav,updateSolutionEnable,
+        deleteSolution,addOrUpdateNav,loadAllCateList,updateNavEnable,
+        deleteNav} from '@/service/getData'
 export default {
     data(){
         return{
@@ -342,16 +360,42 @@ export default {
             }],
             fileList: [],
             activeName: 'first',
-            firstCateList:[
-                {label:'推荐',value:1}
-            ],
-            firstCate:1,
-            currentPage4:1,
-            industrySolutionList:[]
+            firstCateList:[],
+            industrySolutionList:[],
+            solutionPageNum:1,
+            solutionPageSize:10,
+            solutionTotal:1,
+            navigationList:[],
+            navigation:{},
+            navigationId:'',
+            showEdit: [],
+            showBtn: [],
+            addFlag:false,
+            cateTwoKeywords:[],
+            mode:'add',
+            categoryTwoId:'',
         }
     },
     created(){
         this.init()
+    },
+    mounted(){
+         for(var i = 0; i < this.navigationList.length; i ++) {
+            this.showEdit[i] = false;
+            this.showBtn[i] = false;
+        }
+        // 初始化行业解决方案二级类目
+        loadAllCateList({}).then(res=>{
+            if(res.data){
+                this.firstCateList = res.data;
+                for(var item of res.data){
+                    if(item.categoryName == '行业解决方案'){
+                        this.cateTwoKeywords = item.childrenList;
+                        break;
+                    }
+                }
+            }
+        })
     },
     methods:{
         // 初始化
@@ -366,7 +410,7 @@ export default {
                 that.dispenseContent = res.data;
             })
             this.getIndustrySolution();
-
+            this.getAllNav();
         },
         // 编辑顶部楼层
         handleTopEdit(index,row){
@@ -447,22 +491,6 @@ export default {
         handleSizeChange(){
 
         },
-        handleView(index,row){
-            this.$router.push({
-                path:'/userinfo',
-                query:{
-                    userInfo:row,
-                    activeIndex:'4'
-                },
-            })
-        },
-
-        // 添加产品
-        addProduct(){
-            this.$router.push({
-                name:'productDetail'
-            })
-        },
 
         handleClick(tab, event) {
             console.log(tab, event);
@@ -501,16 +529,197 @@ export default {
         // 查询行业解决方案列表
         getIndustrySolution(){
             let params = {
-                id:'',
-                pageNum:1,
-                pageSize:10
+                categoryTwoId:this.categoryTwoId,
+                pageNum:this.solutionPageNum,
+                pageSize:this.solutionPageSize
             }
             loadIndustrySolution(params).then(res=>{
                 if(res.code == 200){
-                    this.industrySolutionList = res.data;
+                    this.industrySolutionList = res.data.dataList;
+                    this.solutionTotal = res.data.totalCount;
+                    if(this.solutionPageNum > res.data.totalPage && res.data.totalPage >1){
+                        this.solutionPageNum = res.data.totalPage -1;
+                        this.getIndustrySolution();
+                    }else if(this.solutionPageNum > res.data.totalPage && res.data.totalPage == 1){
+                        this.solutionPageNum = 1;
+                        this.getIndustrySolution();
+                    }
                 }
             })
-        }
+        },
+        
+        // 解决方案分页数量改变
+        solutionSizeChange(pageSize){
+            this.solutionPageSize = pageSize;
+            this.getIndustrySolution();
+        },
+
+        // 解决方案跳转页数
+        solutionCurrentChange(page){
+            this.solutionPageNum = page;
+            this.getIndustrySolution();
+        },
+
+        // 获取所有导航
+        getAllNav(){
+            loadAllNav({}).then(res=>{
+                this.navigationList = res.data;
+            })
+        },
+
+        // 解决方案编辑跳转
+        solutionEdit(index,row){
+            this.$store.commit('saveSolutionInfo',row);
+            this.$router.push('/solutionDetail')
+        },
+
+        // 搜索解决方案
+        filterSolution(){
+            this.categoryTwoId = "";
+            for(var item of this.navigationList){
+                if(this.navigationId == item.id){
+                    this.categoryTwoId = item.categoryTwoId;
+                }
+            }
+            this.getIndustrySolution();
+        },
+
+        // 解决方案上下线
+        solutionOnOrOut(index,row){
+            let enable = Math.abs(row.enable-1);
+            let params = {
+                id: row.id,
+                enable: enable
+            }
+            updateSolutionEnable(params).then(res=>{
+                if(res.code == 200){
+                    this.getIndustrySolution();
+                }
+            })
+        },
+
+        // 解决方案删除
+        solutionDelete(index,row){
+            this.$confirm('此操作将永久删除该解决方案, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                deleteSolution({id:row.id}).then(res=>{
+                    if(res.code == 200){
+                        this.$message.success('删除成功');
+                        this.getIndustrySolution();
+                    }
+                })
+            }).catch(() => {
+                this.$message.info('已取消删除')         
+            });
+        },
+    
+        navEdit(index,row){
+            this.showEdit[index] = true;
+            this.showBtn[index] = true;
+            this.$set(this.showEdit,index,true)
+            this.$set(this.showBtn,index,true)
+            this.mode = 'edit';
+        },
+
+        // 保存导航
+        navSubmit(index,row){
+            this.showEdit[index] = false;
+            this.showBtn[index] = false;
+            this.$set(this.showEdit,index,false)
+            this.$set(this.showBtn,index,false)
+            if(!!!row.navigationName){
+                this.$message.warning('请输入导航名称');
+                return false;
+            }
+            if(!!!row.categoryTwoId){
+                this.$message.warning('选择二级类目');
+                return false;
+            }
+            if(!!!row.sort){
+                this.$message.warning('请输入排序');
+                return false;
+            }
+            let params = {
+                id: row.id,
+                navigationName:row.navigationName,
+                categoryTwoId:row.categoryTwoId,
+                sort: row.sort
+            }
+            addOrUpdateNav(params).then(res=>{
+                if(res.code == 200){
+                    if(this.mode == 'add'){
+                        this.$message.success('添加成功')
+                    }else{
+                        this.$message.success('修改成功')
+                    }
+                    this.getAllNav();
+                }else{
+                    this.$message.warning(res.msg)
+                }
+            })
+        },
+
+        // 导航上下线
+        navOnOrout(index,row){
+            if(row.publishState == 2){
+                row.publishState = 3
+            }else
+            if(row.publishState == 3){
+                row.publishState = 2
+            }else{
+                row.publishState = 2
+            }
+            let params = {
+                id: row.id,
+                publishState: row.publishState
+            }
+            updateNavEnable(params).then(res=>{
+                if(res.code == 200){
+                    this.getAllNav();
+                }else{
+                    this.$message.warning(res.msg);
+                }
+            })
+        },
+
+        // 导航删除
+        navDelete(index,row){
+            this.$confirm('此操作将永久删除该导航, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                deleteNav({id:row.id}).then(res=>{
+                    if(res.code == 200){
+                        this.$message.success('删除成功');
+                        this.getAllNav();
+                    }
+                })
+            }).catch(() => {
+                this.$message.info('已取消删除')         
+            });
+        },
+
+         // 添加产品
+        addNavigation(){
+            this.mode = 'add';
+            this.addFlag = true;
+            this.navigationList.push(
+                {
+                    id:'',
+                    categoryTwoId:'',
+                    navigationName:'',
+                    sort:'',
+                    publishState:1
+                })
+            this.showEdit[this.navigationList.length-1] = true;
+            this.showBtn[this.navigationList.length-1] = true;
+            this.$set(this.showEdit,this.navigationList.length-1,true)
+            this.$set(this.showBtn,this.navigationList.length-1,true)
+        },
     }
 }
 </script>
@@ -600,15 +809,6 @@ export default {
         margin-top: 40px;
         margin-bottom: 40px;
     }
-    
-    .solution-btn{
-        width: 50%;
-        text-align: right;
-        position: relative;
-        left:50%;
-        top:30px;
-        z-index: 999;
-    }
     .search-nav{
         margin-bottom: 10px;
         span{
@@ -618,6 +818,13 @@ export default {
     .add-nav{
         margin-bottom: 10px;
         text-align: right;
+    }
+    .nav-input{
+        width:100% !important;
+    }
+    .disable_btn{
+        background:#999999!important;
+        border:none!important;
     }
 </style>
 

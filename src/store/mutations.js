@@ -38,7 +38,7 @@ export default{
     },
 
     saveSolutionInfo(state,solutionInfo){
-        // 保存产品信息
+        // 保存解决方案信息
         state.solutionInfo = solutionInfo;
     },
     // 保存顶部楼层目信息
@@ -59,5 +59,10 @@ export default{
     // 保存分发楼层信息
     saveDispenseDetail(state,dispenseDetail){
         state.dispenseDetail = dispenseDetail;
-    }
+    },
+
+    // 保存分发楼层信息
+    saveHotKeyDetail(state,hotKeyInfo){
+        state.hotKeyInfo = hotKeyInfo;
+    },
 }

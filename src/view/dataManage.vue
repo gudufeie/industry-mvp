@@ -10,7 +10,7 @@
             </el-date-picker>
         </div>
         <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
-            <el-tab-pane label="用户管理" name="first">
+            <el-tab-pane label="用户搜索" name="first">
                 <el-row :gutter="20">
                     <el-col :span="12">
                         <div class="grid-content bg-purplp-left">
@@ -64,7 +64,7 @@
                     </el-col>
                 </el-row>
             </el-tab-pane>
-            <el-tab-pane label="配置管理" name="second">
+            <el-tab-pane label="浏览页面" name="second">
                 <el-row :gutter="20">
                     <el-col :span="12">
                         <div class="grid-content bg-purplp-left">
@@ -122,7 +122,7 @@
                     </el-col>
                 </el-row>
             </el-tab-pane>
-            <el-tab-pane label="角色管理" name="third" class="third">
+            <el-tab-pane label="浏览服务" name="third" class="third">
                 <el-row :gutter="20">
                     <el-col :span="15">
                         <div class="grid-content bg-purplp-left">
@@ -228,7 +228,7 @@
                     </el-col>
                 </el-row>
             </el-tab-pane>
-            <el-tab-pane label="定时任务补偿" name="fourth" class="fourth">
+            <el-tab-pane label="用户收藏" name="fourth" class="fourth">
                 <el-row :gutter="20">
                     <el-col :span="15">
                         <div class="grid-content bg-purplp-left">

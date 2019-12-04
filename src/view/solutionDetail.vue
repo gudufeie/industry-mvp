@@ -1,22 +1,24 @@
 <template>
     <div class="main-wrap">
         <el-row :gutter="20">
-            <el-col :span="12" :offset="6">
+            <el-col :span="12" :offset="6" v-if="mode == 'edit'">
                 <div class="grid-content bg-purple-dark solutionID" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">解决方案ID:</span>
-                    <el-input class="status_type" v-model="input" placeholder="请输入内容"></el-input>
-                    <router-link to="sloveDetail"><span>查看详情</span></router-link>
+                    <span>{{solutionDetail.id}}</span>
+                    <router-link to="sloveDetail"><span @click="toSloveDetail" class='viewDetail'>查看详情</span></router-link>
                 </div>
             </el-col>
             <el-col :span="12" :offset="6">
                 <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">解决方案名称<span class="star">*</span>:</span>
-                    <el-input 
+                    <el-input
+                        ref='name' 
                         class="status_type" 
-                        v-model="input" 
+                        v-model="solutionDetail.solutionName" 
                         placeholder="30个字以内"
                         maxlength="30"
-                        show-word-limit>
+                        show-word-limit
+                        @blur="getName">
                     </el-input>
                 </div>
             </el-col>
@@ -25,7 +27,7 @@
                     <span class="status_type title">封面<span class="star">*</span>:</span>
                     <el-image
                         style="width: 100px; height: 100px"
-                        :src="url"
+                        :src="solutionDetail.solutionPic"
                         :fit="fit">
                     </el-image>
                     <el-upload
@@ -42,12 +44,12 @@
             <el-col :span="12" :offset="6">
                 <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">导航菜单<span class="star">*</span>:</span>
-                    <el-select v-model="firstCate" placeholder="请选择">
+                    <el-select v-model="solutionDetail.navigationMenu" placeholder="请选择" @change="getNavId">
                         <el-option
-                        v-for="item in firstCateList"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
+                        v-for="(item,index) in navigationList"
+                        :key="index"
+                        :label="item.navigationName"
+                        :value="item.id">
                         </el-option>
                     </el-select>
                 </div>
@@ -55,9 +57,9 @@
             <el-col :span="12" :offset="6">
                 <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">是否推荐<span class="star">*</span>:</span>
-                    <el-select v-model="firstCate" placeholder="请选择">
+                    <el-select v-model="solutionDetail.recommend" placeholder="请选择">
                         <el-option
-                        v-for="item in firstCateList"
+                        v-for="item in recommendList"
                         :key="item.value"
                         :label="item.label"
                         :value="item.value">
@@ -68,9 +70,9 @@
             <el-col :span="12" :offset="6">
                 <div class="grid-content bg-purple-dark status" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">是否启用:</span>
-                    <el-select v-model="status" placeholder="请选择二级类目">
+                    <el-select v-model="solutionDetail.enable" placeholder="请选择">
                         <el-option
-                        v-for="item in statusList"
+                        v-for="item in enableList"
                         :key="item.value"
                         :label="item.label"
                         :value="item.value">
@@ -83,25 +85,25 @@
                     <span class="status_type title">排序:</span>
                     <el-input 
                         class="status_type" 
-                        v-model="input" >
+                        v-model="solutionDetail.sort" >
                     </el-input>
                 </div>
             </el-col>
-            <el-col :span="12" :offset="6">
+            <el-col :span="12" :offset="6" v-if="solutionDetail.id">
                 <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">最近更新时间:</span>
-                    <span>111111</span>
+                    <span>{{updateTime}}</span>
                 </div>
             </el-col>
-            <el-col :span="12" :offset="6">
+            <el-col :span="12" :offset="6" v-if="solutionDetail.id">
                 <div class="grid-content bg-purple-dark" style="display:flex;justify-content:flex-start">
                     <span class="status_type title">概述:</span>
-                    <span>111111</span>
+                    <span>{{solutionDetail.description}}</span>
                 </div>
             </el-col>
             <el-col :span="12" :offset="6">
                 <div class="grid-content bg-purple-dark" style="text-align:center">
-                    <el-button type="primary">保存</el-button>
+                    <el-button @click="save" type="primary">保存</el-button>
                     <el-button @click="back">取消</el-button>
                 </div>
             </el-col>
@@ -109,68 +111,70 @@
     </div>
 </template>
 <script>
-import { regionData } from 'element-china-area-data';
-import { VueEditor, Quill } from "vue2-editor";
-import BusinessSearch from "./businessSerach";
-import TagsAdd from "./tagsAdd"
+import {addSolution,loadAllNav,updateSolution,loadNavSort} from '@/service/getData'
 
 export default{
     data(){
         return{
-            content: "",
             fit:'',
-            input:'',
             url: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg',
-            name: '',
-            status:1,
-            relateKeywordList:[],
-            inputVisible: false,
-            inputValue: '',
-            firstCateList:[],
-            secondCateList:[],
-            firstCate:'',
-            secondCate:'',
-            updateTime:'',
-            statusList:[
+            enableList:[
                 {label:'是',value:1},
                 {label:'否',value:0}
             ],
-            relationName:'',
-            keyWordRelationname:[],
-            keyworkId:'',
-            firstCateId:'',
-            secondCateId:'',
-            key:{},
-            options: regionData ,
-            selectedOptions: [],
+            recommendList:[
+                {label:'人工推荐',value:1},
+                {label:'系统推荐',value:2},
+                {label:'否',value:0}
+            ],
             imageUrl:'',
+            solutionDetail:{
+                description: '',
+                enable:'',
+                id: '',
+                navigationMenu: '',
+                recommend: '',
+                solutionName: '',
+                solutionPic:'',
+                sort: '',
+                categoryTwoId:'',
+                solutionSortId:''
+            },
+            mode:'add',
+            navigationList:[],
+            updateTime:'',
+            navigationName:''
         }
     },
-    components:{
-        VueEditor,
-        BusinessSearch,
-        TagsAdd
+    computed:{
+        solutionInfo(){
+            return this.$store.state.solutionInfo;
+        }
+    },
+    mounted(){
+        if(this.solutionInfo.id){
+            this.mode = 'edit';
+            this.solutionDetail = {
+                description:this.solutionInfo.description,
+                enable:this.solutionInfo.enable,
+                id: this.solutionInfo.id,
+                navigationMenu: this.solutionInfo.navigationMenu,
+                recommend: this.solutionInfo.recommend,
+                solutionName: this.solutionInfo.solutionName,
+                solutionPic:this.solutionInfo.solutionPic,
+                sort: this.solutionInfo.sort
+            }
+            this.updateTime = this.solutionInfo.createTime;
+             this.$store.commit('saveSolutionInfo','');
+        }
+        this.getAllNav();
     },
     methods:{
-        handleClose(tag) {
-            this.relateKeywordList.splice(this.relateKeywordList.indexOf(tag), 1);
-        },
-
-        showInput() {
-            this.inputVisible = true;
-        },
-
-        handleInputConfirm() {
-            let inputValue = this.inputValue;
-            if (inputValue) {
-            this.relateKeywordList.push(inputValue);
-            }
-            this.inputVisible = false;
-            this.inputValue = '';
-        },
-
-        handleChange (value) {
-            console.log(value)
+        // 获取所有导航
+        getAllNav(){
+            loadNavSort({}).then(res=>{
+                this.navigationList = res.data;
+            })
         },
         // 返回上一页
         back(){
@@ -193,6 +197,60 @@ export default{
             }
             return isJPG && isLt2M;
         },
+
+        getName(){
+            if(!!!this.solutionDetail.solutionName){
+                this.$message.warning('请填写解决方案名称');
+                this.$refs.name.blur();
+                return false;
+            }
+        },
+
+        // 新增或修改解决方案
+        save(){
+            if(!!!this.solutionDetail.navigationMenu){
+                this.$message.warning('请选择导航菜单');
+                return false;
+            }
+            this.solutionDetail.solutionPic = this.url;
+            if(this.mode == 'edit'){
+                updateSolution(this.solutionDetail).then(res=>{
+                    if(res.code == 200){
+                        this.$message.success('修改成功')
+                        this.$router.push('/home');
+                    }
+                    else{
+                        this.$message.warning('修改失败')
+                    }
+                })
+            }else{
+                addSolution(this.solutionDetail).then(res=>{
+                    if(res.code == 200){
+                        this.$message.success('添加成功')
+                        this.$router.push('/home');
+                    }
+                    else{
+                        this.$message.warning('添加失败')
+                    }
+                })
+            }
+        },
+
+        toSloveDetail(){
+            this.$store.commit('saveSolutionInfo',this.solutionDetail)
+        },
+
+        // 通过选择导航获取相应二级类目ID
+        getNavId(){
+            for(var item of this.navigationList){
+                if(item.id == this.solutionDetail.navigationMenu){
+                    this.solutionDetail.solutionSortId = this.solutionDetail.navigationMenu;
+                    this.solutionDetail.navigationMenu = item.navigationName;
+                    this.solutionDetail.categoryTwoId = item.categoryTwoId;
+                    break;
+                }
+            }
+        }
     }
 }
 </script>
@@ -279,11 +337,19 @@ export default{
             margin-right: 20px;
         }
         span{
-            color:#0b7a75;
             line-height: 40px;
+            display: inline-block;
+            width: 40%;
+        }
+        .viewDetail{
+            color:#0b7a75;
         }
         span:hover{
             text-decoration:underline;
+        }
+        a{
+            width:30%;
+            text-align:right;
         }
     }
 </style>

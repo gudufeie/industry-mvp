@@ -115,8 +115,10 @@
                     width="120">
                     </el-table-column>
                     <el-table-column
-                    prop="lable"
                     label="标签">
+                        <template slot-scope="{row}">
+                            <span>{{row.label == 1?'热标':row.label == 2?'新标':'无'}}</span>
+                        </template>
                     </el-table-column>
                     <el-table-column
                     prop="sort"
@@ -132,7 +134,7 @@
                     width="150">
                         <template slot-scope="scope">
                             <el-button size="mini" @click="keywordEdit(scope.$index, scope.row)">编辑</el-button>
-                            <el-button size="mini" @click="handleView(scope.$index, scope.row)">删除</el-button>
+                            <el-button size="mini" @click="keywordDelete(scope.$index, scope.row)">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -180,7 +182,7 @@
             </div>
             <div class="name">
                 <span class="key-title">是否展示标签<span class="star">*</span></span>
-                <el-select v-model="tagId" placeholder="请选择">
+                <el-select v-model="enable" placeholder="请选择">
                     <el-option
                     v-for="item in tagsList"
                     :key="item.value"
@@ -200,7 +202,7 @@
             </div>
             <el-divider></el-divider>
             <div class="add-wrap">
-                <el-button size="mini" @click="addKeywordDetail = true">新增</el-button>
+                <el-button size="mini" @click="addKeywordDetail">新增</el-button>
             </div>
             <el-table
                 :header-cell-style="{color:'#000'}"
@@ -213,35 +215,76 @@
                 width="60">
                 </el-table-column>
                 <el-table-column
-                prop="name"
                 label="配置词"
-                width="100">
+                width="120">
+                    <template slot-scope="{$index,row}">
+                        <el-input class="congigKeyword" v-if="!!showEdit[$index]" v-model="row.title"></el-input>
+                        <span v-if="!!!showEdit[$index]">{{row.title}}</span>
+                    </template>
                 </el-table-column>
                 <el-table-column
                 prop="address"
                 label="跳转类型"
-                width="120">
+                width="110">
+                    <template slot-scope="{$index,row}">
+                        <el-select v-if="!!showEdit[$index]" class="congigKeyword" v-model="row.forwardType" placeholder="请选择">
+                            <el-option
+                                v-for="item in forwardTypeOptions"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value">
+                            </el-option>
+                        </el-select>
+                        <span v-if="!!!showEdit[$index]">{{row.forwardType == '1'?'关键词':'地址'}}</span>
+                    </template>
                 </el-table-column>
                 <el-table-column
-                prop="name"
                 label="关键词/地址">
+                    <template slot-scope="{$index,row}">
+                        <el-select v-if="!!showEdit[$index] && row.forwardType == '1'" class="congigKeyword" v-model="row.content" placeholder="请选择">
+                            <el-option
+                                v-for="(item,index) in cateTwoKeywords"
+                                :key="index"
+                                :label="item.keyWordName"
+                                :value="item.id">
+                            </el-option>
+                        </el-select>
+                        <el-input class="congigKeyword" v-if="!!showEdit[$index] && row.forwardType == '2'" v-model="row.content"></el-input>
+                        <span v-if="!!!showEdit[$index] && row.forwardType == '1'">{{row.content | getCateName(cateTwoKeywords)}}</span>
+                        <span v-if="!!!showEdit[$index] && row.forwardType == '2'">{{row.content}}</span>
+                    </template>
                 </el-table-column>
                 <el-table-column
-                prop="name"
-                label="标签">
+                label="标签"
+                width="100">
+                    <template slot-scope="{$index,row}">
+                        <el-select v-if="!!showEdit[$index]" class="congigKeyword" v-model="row.lable" placeholder="请选择">
+                            <el-option
+                                v-for="item in labelOptions"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value">
+                            </el-option>
+                        </el-select>
+                        <span v-if="!!!showEdit[$index]">{{row.lable == '1'?'热标':'新标'}}</span>
+                    </template>
                 </el-table-column>
                 <el-table-column
-                prop="name"
                 label="排序"
-                width="80">
+                width="100">
+                    <template slot-scope="{$index,row}">
+                        <el-input class="congigKeyword" v-if="!!showEdit[$index]" v-model="row.sort"></el-input>
+                        <span v-if="!!!showEdit[$index]">{{row.sort}}</span>
+                    </template>
                 </el-table-column>
                 <el-table-column
-                prop="name"
                 label="操作"
-                width="150">
-                    <template slot-scope="scope">
-                        <el-button size="mini" @click="handleView(scope.$index, scope.row)">编辑</el-button>
-                        <el-button size="mini" @click="handleView(scope.$index, scope.row)">删除</el-button>
+                width="210">
+                    <template slot-scope="{$index,row}">
+                        <el-button size="mini" @click="handleEdit($index,row)" v-if="!!!showBtn[$index]">编辑</el-button>
+                        <el-button size="mini" @click="handleSubmit($index,row)" v-if="!!showBtn[$index]">保存</el-button>
+                        <el-button size="mini" @click="handleCancel($index, row)" v-if="!!showBtn[$index]">取消</el-button>
+                        <el-button size="mini" @click="handleDelete($index, row)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -252,7 +295,9 @@
     </div>
 </template>
 <script>
-import { loadAllCateList, addDispense, loadDispenseTwo, addEditKeywordDetail } from "../service/getData";
+import { loadAllCateList, addDispense, loadDispenseTwo, addEditKeywordDetail,
+        configKeyDelete, getCateTwoKeyword, getAllKey, addOrUpdateConfigKey,
+        deleteConfigKey } from "../service/getData";
 export default {
     data(){
         return{
@@ -273,13 +318,9 @@ export default {
                 {label:'是',value:1},
                 {label:'否',value:0}
             ],
-            tableData: [{
-                date: '2016-05-02',
-                name: '王小虎',
-                address: '上海市普陀区金沙江路 1518 弄'
-            }],
+            tableData: [],
             dispenseTwoData:[],
-            tagId:1,
+            enable:1,
             tagsList:[
                 {label:'是',value:1},
                 {label:'否',value:0}
@@ -289,7 +330,20 @@ export default {
             sort:'',
             title:'',
             dispenseId:'',
-            keywordId:''
+            keywordId:'',
+            showEdit: [],      //显示输入框
+            showBtn: [],      //显示保存按钮
+            forwardTypeOptions:[
+                {label:'关键词',value:'1'},
+                {label:'地址',value:'2'}
+            ],
+            mode:false,
+            labelOptions:[
+                {label:'无',value:'0'},
+                {label:'热标',value:'1'}
+            ],
+            cateTwoKeywords:[],
+            cateTwoKeyword:''
         }
     },
     computed: {
@@ -313,6 +367,11 @@ export default {
             this.dispenseInfo.id = '';
         }
         this.getAllCates();
+
+        for(var i = 0; i < this.tableData.length; i ++) {
+            this.showEdit[i] = false;
+            this.showBtn[i] = false;
+        }
     },
     methods:{
         // 初始化获取所有类目
@@ -330,48 +389,10 @@ export default {
                 this.dispenseTwoData = res.data;
             })
         },
-        getKeyword(){
-            if(this.keywordInfo){
-                let key = this.keywordInfo;
-                this.keyworkId = key.id;
-                this.name = key.keyWordName;
-                this.firstCate = key.categoryOneName;
-                this.secondCate = key.categoryTwoName;
-                this.firstCateId = key.categoryOneId;
-                this.secondCateId = key.categoryTwoId;
-                this.status = key.enable;
-                this.updateTime = key.updateTime;
-                this.relateKeywordList = (key.keyWordRelations).split(',')
-                this.relateKeywordList = this.relateKeywordList.filter(function (el) {
-                    return el && el.trim();
-                })
-                this.getKeywordDetail();
-            }
-            this.$local.clear('keyword')
-        },
 
-        // 查询关键字详情
-        getKeywordDetail(){
-            loadKeywordDetail({id:this.keyworkId}).then(res=>{
-                this.keyWordRelationname = res.data.keyWordRelationsDTOs
-            })
-        },
-
+        // 关闭对话框
         handleClose() {
             this.dialogVisible = false;
-        },
-
-        showInput() {
-            this.inputVisible = true;
-        },
-
-        handleInputConfirm() {
-            let inputValue = this.inputValue;
-            if (inputValue) {
-            this.relateKeywordList.push(inputValue);
-            }
-            this.inputVisible = false;
-            this.inputValue = '';
         },
 
         back(){
@@ -450,13 +471,31 @@ export default {
             })
         },
 
-        // 添加关键词明细
+        // 添加配置词
         addKeywordDetail(){
-            console.log('添加关键词明细')
+            this.mode = true;
+            this.tableData.push({
+                addressId:this.keywordId,
+                content: '',
+                forwardType: "1",
+                id: "",
+                lable: "1",
+                sort: 0,
+                title: "",
+            })
+            this.showEdit[this.tableData.length-1] = true;
+            this.showBtn[this.tableData.length-1] = true;
+            this.$set(this.showEdit,this.tableData.length-1,true)
+            this.$set(this.showBtn,this.tableData.length-1,true)
         },
 
+        // 调出关键词明细弹出框
         addKeyword(){
             this.dialogVisible = true;
+            this.title = '';
+            this.categoryTwoId = '';
+            this.enable = '';
+            this.sort = '';
             for(var item of this.categoryOneList){
                 if(item.id == this.dispenseInfo.categoryOneId){
                     this.categoryTwoList = item.childrenList;
@@ -488,7 +527,7 @@ export default {
                   categoryTwoId: this.categoryTwoId,
                   content:this.categoryTwoId,
                   title:this.title,
-                  label: this.tagId
+                  label: this.enable
               }
 
             addEditKeywordDetail(params).then(res=>{
@@ -503,14 +542,136 @@ export default {
           }    
         },
 
+        // 关键词编辑
         keywordEdit(index,row){
-            
+            for(var item of this.categoryOneList){
+                if(item.id == this.dispenseInfo.categoryOneId){
+                    this.categoryTwoList = item.childrenList;
+                }
+            }
             this.dialogVisible = true;
             this.keywordId = row.id;
             this.title = row.title;
-            this.categoryTwoId = row.categoryTwoId;
+            this.categoryTwoId = row.content;
             this.sort = row.sort;
             this.tagId = row.label;
+            getCateTwoKeyword({id:this.categoryTwoId}).then(res=>{
+                this.cateTwoKeywords = res.data;
+            })
+            this.loadAllKey(row.id);
+        },
+
+        // 关键词删除
+        keywordDelete(index,row){
+            this.$confirm('此操作将永久删除该关键词, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                configKeyDelete({id: row.id}).then(res=>{
+                    if(res.code == 200){
+                        this.$message({
+                            type: 'success',
+                            message: '删除成功!'
+                        });
+                        this.getDispenseTwo(this.dispenseId);
+                    }
+                    else{
+                        this.$message.warning(res.msg)
+                    }
+                })
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消删除'
+                });          
+            });
+        },
+
+        // 获取所有配置词
+        loadAllKey(id){
+            getAllKey({id:id}).then(res=>{
+                this.tableData = res.data;
+            })
+        },
+
+        // 配置词进入编辑状态
+        handleEdit(index,row){
+            if(!!!this.categoryTwoId){
+                this.$message.warning('请先添加关键词明细');
+                return false;
+            }
+            this.showEdit[index] = true;
+            this.showBtn[index] = true;
+            this.$set(this.showEdit,index,true)
+            this.$set(this.showBtn,index,true)
+        },
+
+        // 配置词保存修改或新增
+        handleSubmit(index,row){
+            let item = {};
+            item= {
+                addressId: row.addressId,
+                content: row.content,
+                forwardType: row.forwardType,
+                id: row.id,
+                lable: row.label,
+                sort: row.sort,
+                title: row.title,
+            }
+            this.showEdit[index] = false;
+            this.showBtn[index] = false;
+            this.$set(this.showEdit,index,false)
+            this.$set(this.showBtn,index,false)
+            addOrUpdateConfigKey(item).then(res=>{
+                if(res.code == 200){
+                    this.$message.success('添加成功');
+                    this.loadAllKey(this.keywordId);
+                }else{
+                    this.$message.warning(res.msg);
+                    this.loadAllKey(row.id);
+                }
+            })
+        },
+
+        // 配置词取消编辑
+        handleCancel(index,row){
+            if(!!this.mode){
+                this.tableData.splice(index,1);
+                this.mode = false;
+            }else{
+                this.showEdit[index] = false;
+                this.showBtn[index] = false;
+                this.$set(this.showEdit,index,false)
+                this.$set(this.showBtn,index,false)
+            }
+        },
+
+        // 配置词删除
+        handleDelete(index,row){
+            this.$confirm('此操作将永久删除该配置词, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                deleteConfigKey({id: row.id}).then(res=>{
+                    if(res.code == 200){
+                        this.$message({
+                            type: 'success',
+                            message: '删除成功!'
+                        });
+                        this.loadAllKey(this.keywordId);
+                    }
+                    else{
+                        this.$message.warning(res.msg)
+                    }
+                })
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消删除'
+                });          
+            });
         }
     }
 }
@@ -527,6 +688,9 @@ export default {
     }
     .el-input,.el-select,.el-textarea{
         width: 50%;
+    }
+    .congigKeyword{
+        width: 100%;
     }
     .el-row{
         margin-top: 20px;

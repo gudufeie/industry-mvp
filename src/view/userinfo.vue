@@ -16,11 +16,11 @@
              <div class="userinfo_left">
                  <div class="userinfo_nav">
                     <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
-                    <el-menu-item index="1">用户信息</el-menu-item>
+                    <el-menu-item index="1" :disabled="showUser">用户信息</el-menu-item>
                     <el-menu-item index="2" disabled>交易信息</el-menu-item>
                     <el-menu-item index="3" disabled>跟进信息</el-menu-item>
-                    <el-menu-item index="4">经营信息</el-menu-item>
-                    <el-menu-item index="5">行为轨迹</el-menu-item>
+                    <el-menu-item index="4" :disabled="showBusiness">经营信息</el-menu-item>
+                    <el-menu-item index="5" :disabled="showBehavior">行为轨迹</el-menu-item>
                     </el-menu>
                     <div class="line"></div>
                  </div>
@@ -29,8 +29,8 @@
                        <div class="detail_title">账号信息</div>
                         <div class="detail_content">
                         <el-row type="flex" class="row-bg" justify="space-between">
-                            <el-col :span="8"><div class="grid-content bg-purple"><span>用户ID : </span><span>1234567</span></div></el-col>
-                            <el-col :span="8"><div class="grid-content bg-purple-light"><span>用户名 ：</span><span>XXXXXXXX</span></div></el-col>
+                            <el-col :span="8"><div class="grid-content bg-purple"><span>用户ID : </span><span>{{userDetail.id}}</span></div></el-col>
+                            <el-col :span="8"><div class="grid-content bg-purple-light"><span>用户名 ：</span><span>{{userDetail.customerName}}</span></div></el-col>
                             <el-col :span="8">
                                 <div class="grid-content bg-purple">
                                     <span>绑定手机
@@ -72,17 +72,32 @@
                             </el-col>
                         </el-row>
                             <el-row type="flex" class="row-bg" justify="space-between">
-                            <el-col :span="8"><div class="grid-content bg-purple"><span>微信昵称 : </span><span>无</span></div></el-col>
-                            <el-col :span="8"><div class="grid-content bg-purple-light"><span>注册时间 ：</span><span>2019-10-09 15:46:34</span></div></el-col>
-                            <el-col :span="8"><div class="grid-content bg-purple"><span>注册渠道 ：</span><span>PC/微信</span></div></el-col>
+                            <el-col :span="8"><div class="grid-content bg-purple"><span>微信昵称 : </span><span>{{userDetail.weixinName}}</span></div></el-col>
+                            <el-col :span="8"><div class="grid-content bg-purple-light"><span>注册时间 ：</span><span>{{userDetail.registerTime | formatDate}}</span></div></el-col>
+                            <el-col :span="8">
+                                <div class="grid-content bg-purple">
+                                    <span>注册渠道 ：</span>
+                                    <span>{{userDetail.registerChannel == '1'?'PC':userDetail.registerChannel == '2'?'微信':'/'}}</span>
+                                </div>
+                            </el-col>
                         </el-row>
                             <el-row type="flex" class="row-bg" justify="space-between">
-                            <el-col :span="8"><div class="grid-content bg-purple"><span>注册来源 : </span><span>https://baigonglian.com</span></div></el-col>
-                            <el-col :span="8"><div class="grid-content bg-purple-light"><span>最近登录时间 ：</span><span>2019-10-09 15:46:34</span></div></el-col>
-                            <el-col :span="8"><div class="grid-content bg-purple"><span>最近登录地区 ：</span><span>四川 成都</span></div></el-col>
+                            <el-col :span="8"><div class="grid-content bg-purple"><span>注册来源 : </span><span>{{userDetail.registerSource}}</span></div></el-col>
+                            <el-col :span="8"><div class="grid-content bg-purple-light"><span>最近登录时间 ：</span><span>{{userDetail.loginTime | formatDate}}</span></div></el-col>
+                            <el-col :span="8"><div class="grid-content bg-purple"><span>最近登录地区 ：</span><span>{{loginRegion}}</span></div></el-col>
                         </el-row>
                             <el-row  class="row-bg" justify="space-between">
-                            <el-col :span="24"><div class="grid-content bg-purple"><span>备注 : </span> <textarea name="" id="" cols="30" rows="10" placeholder="请输入"></textarea></div></el-col>
+                            <el-col :span="24">
+                                <div class="grid-content bg-purple">
+                                    <span>备注 : </span> 
+                                    <el-input
+                                        type="textarea"
+                                        :rows="5"
+                                        placeholder="请输入内容"
+                                        v-model="remarks">
+                                    </el-input>
+                                </div>
+                            </el-col>
                         </el-row>
                         </div>
                      </div>
@@ -95,7 +110,7 @@
                                     <span>企业名 : </span>
                                     <span>
                                         <el-input 
-                                            v-model="companyName" 
+                                            v-model="enterpriseInfo.businessName" 
                                             placeholder="请输入名称"
                                             maxlength="30"
                                             show-word-limit>
@@ -104,7 +119,7 @@
                                 </div>
                             </el-col>
                             <el-col :span="8"><div class="grid-content bg-purple-light"><span>企业类型 : </span><span>
-                                  <el-select v-model="companyType" placeholder="请选择">
+                                  <el-select v-model="enterpriseInfo.businessType" placeholder="请选择">
                                     <el-option
                                     v-for="item in companyTypeList"
                                     :key="item.value"
@@ -114,7 +129,7 @@
                                 </el-select>
                                 </span></div></el-col>
                             <el-col :span="8"><div class="grid-content bg-purple"><span>企业规模 ：</span><span>
-                                  <el-select v-model="companySize" placeholder="请选择">
+                                  <el-select v-model="enterpriseInfo.businessScale" placeholder="请选择">
                                     <el-option
                                     v-for="item in companySizeList"
                                     :key="item.value"
@@ -126,7 +141,7 @@
                         </el-row>
                             <el-row type="flex" class="row-bg" justify="space-between">
                             <el-col :span="8"><div class="grid-content bg-purple"><span>经营状态 : </span><span>
-                                  <el-select v-model="companyState" placeholder="请选择">
+                                  <el-select v-model="enterpriseInfo.operationState" placeholder="请选择">
                                     <el-option
                                     v-for="item in companyStateList"
                                     :key="item.value"
@@ -139,14 +154,14 @@
                                 <div class="grid-content bg-purple-light">
                                     <span>营业期限 ：</span>
                                     <span class="tip-wrap">
-                                        <el-input @input="getBusinessTerm" v-model="businessTerm" placeholder="请输入"></el-input>
+                                        <el-input @input="getBusinessTerm" v-model="enterpriseInfo.operationPeriod" placeholder="请输入"></el-input>
                                         <span class="tip">{{businessTermTip}}</span>
                                     </span>
                                 </div>
                             </el-col>
                             <el-col :span="8"><div class="grid-content bg-purple"><span>成立日期 ：</span><span>
                                     <el-date-picker
-                                    v-model="createDate"
+                                    v-model="enterpriseInfo.foundedDate"
                                     type="date"
                                     placeholder="选择日期">
                                     </el-date-picker>
@@ -157,13 +172,13 @@
                                 <div class="grid-content bg-purple">
                                     <span>注册资本(万元) : </span>
                                     <span>
-                                        <el-input oninput = "value=value.replace(/[^0-9.?]/g,'')" v-model="register" placeholder="请输入"></el-input>
+                                        <el-input oninput = "value=value.replace(/[^0-9.?]/g,'')" v-model="enterpriseInfo.registeredCapital" placeholder="请输入"></el-input>
                                     </span>
                                 </div>
                             </el-col>
-                            <el-col :span="8"><div class="grid-content bg-purple-light"><span>法人代表  ：</span><span><el-input v-model="legalPerson" placeholder="请输入"></el-input></span></div></el-col>
+                            <el-col :span="8"><div class="grid-content bg-purple-light"><span>法人代表  ：</span><span><el-input v-model="enterpriseInfo.corporation" placeholder="请输入"></el-input></span></div></el-col>
                             <el-col :span="8"><div class="grid-content bg-purple"><span>企业行业 ：</span><span>
-                                  <el-select v-model="industry" placeholder="请选择">
+                                  <el-select v-model="enterpriseInfo.industry" placeholder="请选择">
                                     <el-option
                                     v-for="item in industryList"
                                     :key="item.value"
@@ -177,20 +192,21 @@
                             <el-col :span="2"><div class="grid-content bg-purple"><span style="line-height:40px;">所在地 : </span></div></el-col>
                           <el-col :span="7">
                             <div class="grid-content bg-purple">
-                                <span>
+                                <span class="tip-wrap">
                                     <el-cascader
                                         size="large"
                                         :options="option"
-                                        v-model="selectedOptions"
+                                        v-model="selectedArea"
                                         @change="handleChange">
                                     </el-cascader>
+                                    <span class="tip">{{areaTip}}</span>
                                 </span>
                             </div>
                             </el-col>
                             <el-col :span="15">
                                 <div class="grid-content bg-purple">
                                     <span>
-                                        <el-input class="address" v-model="input" placeholder="请输入内容"></el-input>
+                                        <el-input class="address" v-model="enterpriseInfo.address" placeholder="请输入详细地址" @focus="getAddress"></el-input>
                                     </span>
                                 </div>
                             </el-col>
@@ -198,8 +214,13 @@
                         <el-row  class="row-bg" justify="space-between" style="margin-top:20px;">
                             <el-col :span="24">
                                 <div class="grid-content bg-purple">
-                                    <span>备注 : </span> 
-                                    <textarea name="" id="" cols="30" rows="10" placeholder="请输入内容"></textarea>
+                                    <span>经营范围 : </span> 
+                                    <el-input
+                                        type="textarea"
+                                        :rows="5"
+                                        placeholder="请输入内容"
+                                        v-model="enterpriseInfo.businessScope">
+                                    </el-input>
                                 </div>
                             </el-col>
                         </el-row>
@@ -219,7 +240,7 @@
                                 >
                                 <el-table-column
                                 label="姓名"
-                                width="80">
+                                width="120">
                                     <template slot-scope="{row,$index}">
                                         <el-input v-if="!!showEdit[$index]" v-model="row.name"></el-input>
                                         <span v-if="!!!showEdit[$index]">{{row.name}}</span>
@@ -229,7 +250,7 @@
                                 label="性别"
                                 width="80">
                                     <template slot-scope="{row,$index}">
-                                        <el-select v-if="!!showEdit[$index]" v-model="row.sex" placeholder="请选择">
+                                        <el-select v-if="!!showEdit[$index]" v-model="row.gender" placeholder="请选择">
                                             <el-option
                                             v-for="item in sexList"
                                             :key="item.value"
@@ -237,22 +258,22 @@
                                             :value="item.value">
                                             </el-option>
                                         </el-select>
-                                        <span v-if="!!!showEdit[$index]">{{row.sex}}</span>
+                                        <span v-if="!!!showEdit[$index]">{{row.gender == '1'?'男':'女'}}</span>
                                     </template>
                                 </el-table-column>
                                 <el-table-column
                                 label="手机号"
-                                width="120">
+                                width="160">
                                     <template slot-scope="{row,$index}">
-                                        <el-input v-if="!!showEdit[$index]" v-model="row.phone"></el-input>
-                                        <span v-if="!!!showEdit[$index]">{{row.phone}}</span>
+                                        <el-input v-if="!!showEdit[$index]" v-model="row.moblieNo"></el-input>
+                                        <span v-if="!!!showEdit[$index]">{{row.moblieNo}}</span>
                                     </template>
                                 </el-table-column>
                                 <el-table-column
                                 label="职位"
-                                width="100">
+                                width="120">
                                     <template slot-scope="{row,$index}">
-                                        <el-select v-if="!!showEdit[$index]" v-model="row.job" placeholder="请选择">
+                                        <el-select v-if="!!showEdit[$index]" v-model="row.title" placeholder="请选择">
                                             <el-option
                                             v-for="item in jobList"
                                             :key="item.value"
@@ -260,20 +281,30 @@
                                             :value="item.value">
                                             </el-option>
                                         </el-select>
-                                        <span v-if="!!!showEdit[$index]">{{row.job}}</span>
+                                        <span v-if="!!!showEdit[$index]">
+                                            {{row.title == '0'?'老板':
+                                            row.title == '1'?'销售':
+                                            row.title == '2'?'人事':
+                                            row.title == '3'?'财务':
+                                            row.title == '4'?'行政':
+                                            row.title == '5'?'运营':
+                                            row.title == '6'?'市场':
+                                            row.title == '7'?'技术':
+                                            row.title == '8'?'其他':''
+                                            }}</span>
                                     </template>
                                 </el-table-column>
                                 <el-table-column
                                 label="微信"
-                                width="80">
+                                width="150">
                                     <template slot-scope="{row,$index}">
-                                        <el-input v-if="!!showEdit[$index]" v-model="row.wechat"></el-input>
-                                        <span v-if="!!!showEdit[$index]">{{row.wechat}}</span>
+                                        <el-input v-if="!!showEdit[$index]" v-model="row.weixinId"></el-input>
+                                        <span v-if="!!!showEdit[$index]">{{row.weixinId}}</span>
                                     </template>
                                 </el-table-column>
                                 <el-table-column
                                 label="邮箱"
-                                width="150">
+                                width="200">
                                     <template slot-scope="{row,$index}">
                                         <el-input v-if="!!showEdit[$index]" v-model="row.email"></el-input>
                                         <span v-if="!!!showEdit[$index]">{{row.email}}</span>
@@ -284,7 +315,7 @@
                                 label="管理">
                                     <template slot-scope="{row,$index}">
                                         <el-button size="mini" @click="handleEdit($index,row)" v-if="!!!showBtn[$index]">编辑</el-button>
-                                        <el-button size="mini" @click="handleSubmit($index,row)" v-if="!!showBtn[$index]">确定</el-button>
+                                        <el-button size="mini" @click="handleSubmit($index,row)" v-if="!!showBtn[$index]">保存</el-button>
                                         <el-button size="small" @click.native="handleCancel($index, row)" v-if="!!showBtn[$index]">取消</el-button>
                                         <el-button size="mini" type="danger" @click="handleDelete($index,row)">删除</el-button>
                                     </template>
@@ -300,7 +331,7 @@
                  <behavior-track v-show="activeIndex == '5'"></behavior-track>
                  <business-info :businessInfo='providerInfo' v-show="activeIndex == '4'"></business-info>
              </div>
-             <div class="userinfo_right">
+             <!-- <div class="userinfo_right">
                  <span>操作</span>
                  <div>
                      <el-button type="primary"  size="mini">完善信息</el-button>
@@ -310,14 +341,16 @@
                      <el-button type="primary"  size="mini">添加商机</el-button>
                      <el-button type="primary"  size="mini">跟进记录</el-button>
                  </div>
-             </div>
+             </div> -->
          </div>
     </div>
 </template>
 <script>
-import { regionDataPlus,CodeToText } from 'element-china-area-data';
+import { regionData,CodeToText } from 'element-china-area-data';
 import BehaviorTrack from "./behaviorTrack.vue";
 import BusinessInfo from "./businessInfo.vue";
+import {loadUserInfo,updateUser,updateEnterpriseInfo,loadEnterpriseInfo,
+        loadContactList,deleteContact,addOrupdateContact} from "@/service/getData"
 export default {
     data(){
         return{
@@ -326,46 +359,39 @@ export default {
             wechat:'',
             value:null,
             options:[],
-            createDate:'',
             activeIndex:'1',
+            showBusiness:true,
+            showBehavior:true,
+            showUser:true,
             input:'',
-            option: regionDataPlus,
-            selectedOptions: [],
-            userId:'',
+            option: regionData,
+            selectedArea: [],
+            userId:'',      //用户ID
             showEdit: [],
             showBtn: [],
             addFlag:false,
-            contactList:[
-                {
-                    name:'赵子龙',
-                    sex:'男',
-                    phone:11100000000,
-                    job:'董事长',
-                    wechat:'8888888',
-                    email:'1101110@163.com'
-                }
-            ],
+            contactList:[],
             jobList:[
-                {label:'老板',value:0},
-                {label:'销售',value:1},
-                {label:'人事/财务/行政',value:2},
-                {label:'运营',value:3},
-                {label:'市场',value:4},
-                {label:'技术',value:5},
-                {label:'其他',value:6}
+                {label:'老板',value:'0'},
+                {label:'销售',value:'1'},
+                {label:'人事',value:'2'},
+                {label:'财务',value:'3'},
+                {label:'行政',value:'4'},
+                {label:'运营',value:'5'},
+                {label:'市场',value:'6'},
+                {label:'技术',value:'7'},
+                {label:'其他',value:'8'}
             ],
             sexList:[
-                {label:'男',value:0},
-                {label:'女',value:1}
+                {label:'男',value:'1'},
+                {label:'女',value:'2'}
             ],
             phoneTip:'',
             emailTip:'',
             wechatTip:'',
             qqAccountTip:'',
             qqAccount:'',
-            businessTerm:'',
             businessTermTip:'',
-            companyName:'',    //公司名称
             companyTypeList:[
                 {label:'其他',value:1},
                 {label:'国有',value:2},
@@ -377,15 +403,12 @@ export default {
                 {label:'个体工商户',value:8},
                 {label:'报关',value:9},
             ],
-            companyType:1,   //企业类型
-            companySize:3,   //企业规模
             companySizeList:[
                 {label:'大型企业',value:1},
                 {label:'中型企业',value:2},
                 {label:'小型企业',value:3},
                 {label:'微型企业',value:4},
             ],
-            companyState:1,  //经营状态
             companyStateList:[
                 {label:'存续',value:1},
                 {label:'在业',value:2},
@@ -396,9 +419,6 @@ export default {
                 {label:'停业',value:7},
                 {label:'清算',value:8},
             ],
-            register:'',    //注册资金
-            legalPerson:'',   //法人代表
-            industry:7,     //企业行业
             industryList:[
                 {label:'制造业',value:1},
                 {label:'电力、燃气及水的生产和供应业',value:2},
@@ -407,7 +427,14 @@ export default {
                 {label:'信息传输、计算机服务和软件业',value:5},
                 {label:'批发和零售业',value:6},
                 {label:'其他',value:7},
-            ]
+            ],
+            userDetail:{},
+            remarks:'',       //备注
+            loginRegion:'',
+            mode:'add',
+            enterpriseId:'',
+            enterpriseInfo:{},
+            areaTip:''
         }
     },
     components:{
@@ -427,18 +454,49 @@ export default {
         for(var i = 0; i < this.contactList.length; i ++) {
             this.showEdit[i] = false;
             this.showBtn[i] = false;
-        }
-        
+        }       
     },
     methods:{
         // 获取用户信息
         getUserInfo(){
             this.activeIndex = this.$route.query.activeIndex;
-            if(!!this.userInfo){
-                this.userId = this.userInfo.id;              
+            if(this.activeIndex == 4){
+                this.showBusiness = false;
+            }else
+            if(this.activeIndex == 5){
+                this.showBehavior = false;
+            }else
+            if(this.activeIndex == 1){
+                this.showUser = false;
             }
-            this.$store.commit('saveUserInfo','');
-            this.$local.clear('providerInfo')
+            if(!!this.userInfo){
+                this.mode = 'edit';
+                this.userId = this.userInfo.id; 
+                 loadUserInfo({id:this.userId}).then(res=>{
+                     this.userDetail = res.data;
+                     this.phone = this.userDetail.moblieNo;
+                     this.email = this.userDetail.email;
+                     this.qqAccount = this.userDetail.qqId;
+                     this.wechat = this.userDetail.weixinId;
+                     this.remarks = this.userDetail.note;
+                     if(this.userDetail.province && this.userDetail.city){
+                         this.loginRegion = CodeToText[this.userDetail.province] + CodeToText[this.userDetail.city]
+                     }
+                 })
+                 loadEnterpriseInfo({businessId:1}).then(res=>{
+                     this.enterpriseInfo = res.data;
+                     this.selectedArea = [res.data.province,res.data.city,res.data.area]
+                 })
+                 this.getContactList();
+                this.$store.commit('saveUserInfo','');
+                this.$local.clear('providerInfo')            
+            }
+        },
+
+        getContactList(){
+            loadContactList({businessId:1}).then(res=>{
+                this.contactList = res.data;
+            })
         },
 
         addressChange(arr) {
@@ -452,12 +510,17 @@ export default {
         backPrePage(){
             this.$router.go(-1);
         },
+
+        // 联系人编辑
         handleEdit(index,row){
+            this.mode = 'edit';
             this.showEdit[index] = true;
             this.showBtn[index] = true;
             this.$set(this.showEdit,index,true)
             this.$set(this.showBtn,index,true)
         },
+
+        // 取消修改联系人
         handleCancel(index,row){
             if(!!this.addFlag){
                 this.contactList.splice(index,1);
@@ -469,17 +532,24 @@ export default {
                 this.$set(this.showBtn,index,false)
             }
         },
+
+        // 联系人删除
         handleDelete(index,row){
             this.$confirm('此操作将永久删除该联系人, 是否继续?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
                 }).then(() => {
-                    this.contactList.splice(index,1);
-                    this.$message({
-                        type: 'success',
-                        message: '删除成功!'
-                    });
+                    deleteContact({id:row.id}).then(res=>{
+                        if(res.code == 200){
+                            this.$message({
+                                type: 'success',
+                                message: '删除成功!'
+                            });
+                        }else{
+                            this.$message.warning(res.msg)
+                        }
+                    })
                 }).catch(() => {
                     this.$message({
                         type: 'info',
@@ -487,17 +557,34 @@ export default {
                     });          
             });
         },
-        handleSubmit(){
 
+        // 联系人保存
+        handleSubmit(index,row){
+            addOrupdateContact(row).then(res=>{
+                if(res.code == 200){
+                    this.showEdit[index] = false;
+                    this.showBtn[index] = false;
+                    this.$set(this.showEdit,index,false)
+                    this.$set(this.showBtn,index,false)
+                    this.$message.success('修改成功');
+                    this.getContactList();
+                }else{
+                    this.$message.warning(res.msg);
+                }
+            })
         },
+
+        // 新增联系人
         addNewContact(){
             this.addFlag = true;
             this.contactList.push({
+                id:'',
+                businessId:'1',
                 name:'',
-                sex:'',
-                phone:'',
-                job:'',
-                wechat:'',
+                gender:1,
+                moblieNo:'',
+                title:'',
+                weixinId:'',
                 email:''
             })
             this.showEdit[this.contactList.length-1] = true;
@@ -506,15 +593,49 @@ export default {
             this.$set(this.showBtn,this.contactList.length-1,true)
         },
 
+        // 选择省市区
         handleChange(value){
-            console.log('地区',value,CodeToText[value[0]])
-            console.log('地区',value,CodeToText[value[1]])
-            console.log('地区',value,CodeToText[value[2]])
+            this.enterpriseInfo.province = value[0];
+            this.enterpriseInfo.city = value[1];
+            this.enterpriseInfo.area = value[2];
+            this.areaTip = '';
+        },
+
+        // 填写具体地址
+        getAddress(){
+            if(this.selectedArea.length == 0){
+                this.areaTip = "请选择省市区"
+            }else{
+                this.areaTip = ''   
+            }
         },
 
         // 保存页面修改
         save(){
-            console.log('dddddddddd',this.contactList)
+            let params = {
+                id: this.userId,
+                email: this.email,
+                moblieNo:this.phone,
+                note: this.remarks,
+                qqId: this.qqAccount,
+                weixinId: this.wechat
+            }
+            if(this.mode == 'edit'){
+                updateUser(params).then(res=>{
+                    if(res.code == 200){
+                        updateEnterpriseInfo(this.enterpriseInfo).then(res=>{
+                            if(res.code ==200){
+                                this.$message.success('修改成功');
+                                this.getUserInfo();
+                            }else{
+                                this.$message.warning(res.msg)
+                            }
+                        })
+                    }else{
+                        this.$message.warning(res.msg)
+                    }
+                })
+            }
         },
 
         // 验证手机号
@@ -546,7 +667,7 @@ export default {
 
         // 营业期限验证
         getBusinessTerm(){
-            this.$rules.validateDate(this.businessTerm.trim(),(data)=>{
+            this.$rules.validateDate(this.enterpriseInfo.businessTerm.trim(),(data)=>{
                 this.businessTermTip = data
             })
         }
@@ -557,9 +678,9 @@ export default {
 .userinfo{
     font-size: 14px;
 }
-textarea{
+.el-textarea{
     vertical-align: middle;
-    width: 93%;
+    width: 85%;
     outline: none;
     resize: none;
 }
@@ -581,7 +702,7 @@ textarea{
     margin: 20px 0;
   }
    .el-input,.el-select{
-    width: 52%;
+    width: 60%;
   }
   .address{
       width: 89%;
@@ -589,7 +710,7 @@ textarea{
 }
 .userinfo_left{
     margin: 12px 0;
-    width: 80%;
+    width: 100%;
     vertical-align: top;
 }
 .userinfo_nav {

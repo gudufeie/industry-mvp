@@ -103,6 +103,10 @@ export default {
       hotWord(params).then(res => {
         this.tableData = res.data.dataList;
         this.pageTotal = res.data.totalCount;
+        if(this.pageNum > res.data.totalPage){
+          this.pageNum = res.data.totalPage;
+          this.getserviceList();
+        }
       });
     },
     handleSizeChange(val) {
@@ -117,7 +121,7 @@ export default {
 
     // 编辑
     edit(index, row) {
-      this.$store.commit('saveDispenseDetail',row);
+      this.$store.commit('saveHotKeyDetail',row);
       this.$router.push({
         path: "/hotKeywordDetail"
       });

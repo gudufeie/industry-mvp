@@ -455,12 +455,61 @@ export const addEditKeywordDetail = (params) =>{
     return post(baseUrl + '/contentManager/saveOrUpdateKeyWord', params)
 }
 
+// 删除分发楼层二级内容
+export const configKeyDelete = (params) =>{
+    return post(baseUrl + '/contentManager/delete', params)
+}
+
+// 查询二级类目下的关键词
+export const getCateTwoKeyword = (params) =>{
+    return post(baseUrl + '/contentManager/findAllKeyWordByTwoCategoryId', params)
+}
+
+// 查询所有配置词
+export const getAllKey = (params) =>{
+    return post(baseUrl + '/contentManager/findAllKey', params)
+}
+
+// 新增或修改配置词
+export const addOrUpdateConfigKey = (params) =>{
+    return post(baseUrl + '/contentManager/saveOrUpdateKey', params)
+}
+
+// 删除配置词
+export const deleteConfigKey = (params) =>{
+    return post(baseUrl + '/contentManager/deleteKey', params)
+}
+
+
 // ------------------------------------行业解决方案------------------------------------
 
 // 查询解决方案列表
 export const loadIndustrySolution = (params) =>{
     return post(baseUrl + '/contentManager/findSolutionBySolutionSortId', params)
 }
+
+// 新增解决方案
+export const addSolution = (params) =>{
+    return post(baseUrl + '/contentManager/insertSolution', params)
+}
+
+// 修改解决方案
+export const updateSolution = (params) =>{
+    return post(baseUrl + '/contentManager/updateSolutionById', params)
+}
+
+// 更改解决方案状态
+export const updateSolutionEnable = (params) =>{
+    return post(baseUrl + '/contentManager/updateSolutionEnableById', params)
+}
+
+// 删除解决方案
+export const deleteSolution = (params) =>{
+    return post(baseUrl + '/contentManager/deleteSolutionById', params)
+}
+
+
+
 // ----------------------------------热搜词--------------------------------------
 // 获取所有热搜词
 export const hotWord = (params) => {
@@ -477,4 +526,73 @@ export const addhotWord = (params) => {
 // 删除热搜关键词
 export const delhotword = (params) => {
     return post(baseUrl + '/contentManager/deleteHotWord', params)
+}
+
+
+// ----------------------------------导航排序------------------------------------------
+// 查询导航列表
+export const loadAllNav = (params) => {
+    return post(baseUrl + '/contentManager/solutionSort', params)
+}
+
+// 修改或新增导航
+export const addOrUpdateNav = (params) => {
+    return post(baseUrl + '/contentManager/saveOrUpdateSolutionSort', params)
+}
+
+// 导航修改状态
+export const updateNavEnable = (params) => {
+    return post(baseUrl + '/contentManager/UpdateSolutionSortEnable', params)
+}
+
+// 导航删除
+export const deleteNav = (params) => {
+    return post(baseUrl + '/contentManager/deleteSolutionSort', params)
+}
+
+// 查询除推荐之外所有的导航
+export const loadNavSort = (params) => {
+    return post(baseUrl + '/contentManager/findAllSolutionSort', params)
+}
+
+
+// ------------------------------------------用户管理------------------------------------------
+// 查询用户列表
+export const loadUserList = (params) => {
+    return post(baseUrl + '/usersManager/findPage', params)
+}
+
+// 查询用户详细信息
+export const loadUserInfo = (params) => {
+    return post(baseUrl + '/usersManager/findUserInfoById', params)
+}
+
+// 修改用户信息
+export const updateUser = (params) => {
+    return post(baseUrl + '/usersManager/updateUserInfo', params)
+}
+
+// 查询用户企业信息
+export const loadEnterpriseInfo = (params) => {
+    return post(baseUrl + '/businessManager/findBusinessInfoById', params)
+}
+
+// 修改用户企业信息
+export const updateEnterpriseInfo = (params) => {
+    return postList(baseUrl + '/businessManager/updateBusinessInfo', params)
+}
+
+// 查询联系人
+export const loadContactList = (params) => {
+    return post(baseUrl + '/businessContact/findContactInfoById', params)
+}
+
+// 新增或修改联系人
+export const addOrupdateContact = (params) => {
+    return postList(baseUrl + '/businessContact/insertOrUpdateContact', params)
+}
+
+// 删除联系人
+export const deleteContact = (params) => {
+    return post(baseUrl + '/businessContact/deleteContact', params)
 }

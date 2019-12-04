@@ -24,6 +24,22 @@ Vue.filter('formatDate', (time) => {
   return formatTime;
 });
 
+// 根据ID获取关键字名称
+Vue.filter('getCateName', (id,cateList) => {
+  let name = '';
+  if (id && cateList.length > 0) {
+    for(var item of cateList){
+      if(item.id == id){
+        name = item.keyWordName;
+        break;
+      }
+    }
+  } else {
+    name = '';
+  }
+  return name;
+});
+
 Vue.config.productionTip = false
 // 使用 ElementUI
 Vue.use(ElementUI);

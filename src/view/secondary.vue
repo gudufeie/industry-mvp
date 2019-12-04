@@ -82,13 +82,14 @@ export default {
               ],
               parentId:'',
               mode:'add',
-              id:''
+              id:'',
+              typeId:''
         }
     },
     mounted(){
         let firstCateInfo = this.$route.query.firstCate;
         this.firstCateName = firstCateInfo.categoryName;
-        this.type = firstCateInfo.typeId;
+        this.type = this.typeId = firstCateInfo.typeId;
         this.parentId = firstCateInfo.id;
         if(!!this.$route.query.secondCate){
             this.mode = 'edit';
@@ -119,7 +120,8 @@ export default {
                 categoryName:this.typeName,
                 state:this.enable,
                 id: this.id,
-                parentId: this.parentId
+                parentId: this.parentId,
+                typeId: this.typeId
             }
             addSecondCate(params).then(res=>{
                 if(res.code == 200){
@@ -143,14 +145,14 @@ export default {
                 else{
                     if(this.mode = 'add'){
                         this.$message({
-                            message:'添加失败!',
-                            type: "success",
+                            message:'添加失败：'+res.msg,
+                            type: "warning",
                             center:true
                         })
                     }else{
                         this.$message({
-                            message:'修改失败!',
-                            type: "success",
+                            message:'修改失败：'+res.msg,
+                            type: "warning",
                             center:true
                         })
                     }

@@ -73,11 +73,9 @@
        </el-row>
         <el-row :gutter="20">
             <el-col :span="20" :offset="2">
-                    <div style="text-align:right;margin-bottom:20px;">
-                        <div style="display:inline-block;padding: 7px 15px;border-radius: 3px;background-color: #86b2af;color:#fff;cursor: pointer;" @click="addRow()">
-                            新增
-                        </div>
-                        </div>
+                    <div style="text-align:right;margin-bottom:10px;">
+                        <el-button type="mini" @click="addRow()">新增</el-button>
+                    </div>
             </el-col>
        </el-row>
        <el-row :gutter="20" class="table-row">
@@ -347,7 +345,6 @@ export default {
                          sort:this.sortName,
                          id:prductId
                 }
-                return false
                 editTopdata(parmas).then(res =>{
                         this.$router.push({
                         path:'/home',

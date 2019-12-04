@@ -69,10 +69,10 @@ export default {
     data(){
         return{
               typeName: '',
-              enable:'1',
+              enable:1,
               enableList:[
-                  {label:'否',value:'0'},
-                  {label:'是',value:'1'}
+                  {label:'否',value:0},
+                  {label:'是',value:1}
               ],
               type:'1',
               typeList:[

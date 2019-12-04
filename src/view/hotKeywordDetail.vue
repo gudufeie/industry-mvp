@@ -23,7 +23,7 @@
         </el-col>
         <el-col :span="8">
           <div class="grid-content bg-purple">
-            <el-input v-model="sort"></el-input>
+            <el-input v-model="sort" oninput = "value=value.replace(/[^\d]/g,'')"></el-input>
           </div>
         </el-col>
       </el-row>
@@ -51,7 +51,6 @@
         <el-col :span="6" :offset="4">
           <div class="grid-content bg-purple-left">
             备注
-            <span class="star">*</span>:
           </div>
         </el-col>
         <el-col :span="8">
@@ -136,36 +135,37 @@ export default {
       this.sort = this.hotKeyDetail.sort;
       this.enable = this.hotKeyDetail.enable;
       this.remark = this.hotKeyDetail.remark;
-      this.$store.commit('saveDispenseDetail','');
+      this.$store.commit('saveHotKeyDetail','');
     }
   },
   methods: {
     // 添加修改热搜词
-    add() {
-      if (
-        this.word.trim().length != 0 &&
-        this.sort.trim().length != 0 &&
-        this.remark.trim().length != 0
-      ) {
-        let params = {
-          id: this.id,
-          hotWord: this.word,
-          sort: this.sort,
-          enable: this.enable,
-          remark: this.remark
-        };
-        addhotWord(params).then(res => {
-          if (res.code == 200) {
-            this.$message.success("添加成功");
-            this.$router.push('/search');
-          } else {
-            this.$message.warning(res.msg);
-          }
-        });
-      } else {
-        this.$message.warning("请输入完整信息");
+    add(){
+      if(!!!this.word.trim()){
+        this.$message.warning('请输入热搜词');
+        return false;
       }
+      if(!!!this.sort){
+        this.$message.warning('请输入排序');
+        return false;
+      }
+      let params = {
+        id: this.id,
+        hotWord: this.word,
+        sort: this.sort,
+        enable: this.enable,
+        remark: this.remark.trim()
+      };
+      addhotWord(params).then(res => {
+        if (res.code == 200) {
+          this.$message.success("添加成功");
+          this.$router.push('/search');
+        } else {
+          this.$message.warning(res.msg);
+        }
+      });
     },
+
     back() {
       this.$router.go(-1);
     }

@@ -45,36 +45,46 @@
           width="100">
           </el-table-column>
           <el-table-column
-          prop="name"
+          prop="customerName"
           label="用户名"
           width="80">
           </el-table-column>
           <el-table-column
-          prop="shopName"
+          prop="businessName"
           label="店铺名称">
           </el-table-column>
           <el-table-column
-          prop="phone"
-          width="100"
+          prop="moblieNo"
+          width="120"
           label="联系电话">
           </el-table-column>
           <el-table-column
-          prop="role"
           width="80"
           label="角色">
+            <template slot-scope="{row}">
+                <span>{{row.enterpriseRole == 1?'客户':row.enterpriseRole == 2?'供应商':''}}</span>
+            </template>
           </el-table-column>
           <el-table-column
-          prop="type"
           width="80"
-          label="类型">
+          label="属性">
+            <template slot-scope="{row}">
+                <span>{{row.enterpriseType == 1?'企业':row.enterpriseRole == 2?'个人':''}}</span>
+            </template>
           </el-table-column>
           <el-table-column
-          prop="registerTime"
-          label="注册时间">
+          label="注册时间"
+          width="160">
+            <template slot-scope="{row}">
+                <span>{{row.registerTime | formatDate}}</span>
+            </template>
           </el-table-column>
           <el-table-column
-          prop="loginTime"
-          label="最近登录时间">
+          label="最近登录时间"
+          width="160">
+            <template slot-scope="{row}">
+                <span>{{row.loginTime | formatDate}}</span>
+            </template>
           </el-table-column>
          <el-table-column label="操作" width="80">
           <template slot-scope="scope">
@@ -89,12 +99,12 @@
             <el-pagination
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
-            :current-page="currentPage4"
+            :current-page="currentPage"
             background
             :page-sizes="[10, 25, 50]"
-            :page-size="10"
+            :page-size="pageSize"
             layout="total, sizes, prev, pager, next, jumper"
-            :total="400"
+            :total="dataTotal"
             prev-text="上一页"
             next-text="下一页">
             </el-pagination>
@@ -102,36 +112,72 @@
     </div>
 </template>
 <script>
+import {loadUserList} from "@/service/getData"
 export default {
     data (){
         return{
-            tableData:[
-                {id:1111,name:'擎天柱',shopName:'良品铺子',phone:'155666666',role:'供应商',type:'企业',registerTime:'2019-11-13',loginTime:'2019-11-13 10:00:00'}
-            ],
-            userRole:0,
+            tableData:[],
+            userRole:'',
             userRoles:[
                 {label:'全部',value:0},
                 {label:'客户',value:1},
                 {label:'供应商',value:2}
             ],
-            userType:0,
+            userType:'',
             userTypes:[
                 {label:'全部',value:0},
                 {label:'企业',value:1},
                 {label:'个人',value:2}
             ],
-            searchName:''
+            searchName:'',
+            currentPage:1,
+            pageSize:10,
+            dataTotal:1
         }
     },
+    mounted(){
+        this.getUsers();
+    },
     methods:{
-        search: function(){
-            console.log(this.userRole,this.userType,this.searchName)
+        // 获取所有用户
+        getUsers(){
+            let params = {
+                enterpriseRole:this.userRole,
+                enterpriseType:this.userType,
+                condition:this.searchName,
+                pageNum:1,
+                pageSize:10
+            }
+            loadUserList(params).then(res=>{
+                this.tableData = res.data.dataList;
+                if(this.pageNum > res.data.totalPage){
+                    this.pageNum = res.data.totalPage;
+                    this.getUsers();
+                }
+            })
         },
+        search: function(){
+            this.getUsers();
+        },
+
+        // 跳转用户详情
         handleManag: function(index,row){
             this.$store.commit('saveUserInfo',row)
             this.$router.push({
                 path:'/userinfo',
+                query:{
+                    activeIndex:1
+                }
             })
+        },
+        // 更改分页数量
+        handleSizeChange(){
+
+        },
+
+        // 跳转页面
+        handleCurrentChange(){
+
         }
     }
 }

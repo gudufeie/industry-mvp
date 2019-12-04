@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-row :gutter="20">
+        <el-row :gutter="20" style="text-align:right;">
             <el-col :span="4" :offset="16"><div class="grid-content bg-purple"><router-link to="/primary"><el-button type="primary">创建一级类目 </el-button></router-link></div></el-col>
             <el-col :span="4"><div class="grid-content bg-purple"><el-button type="primary" @click="sort">一级类目排序</el-button></div></el-col>
         </el-row>
@@ -79,7 +79,7 @@
               width="80"
               label="状态">
                 <template slot-scope="{row}">
-                  <span>{{row.state == '1'?'启用中':'已下线'}}</span>
+                  <span>{{row.state == 1?'启用中':'已下线'}}</span>
                 </template>
               </el-table-column>
               <el-table-column
@@ -98,7 +98,7 @@
             <el-button
               size="mini"
               type="success"
-              @click="handleon(scope.$index, scope.row)">{{scope.row.state == '0'?'启用':'下线'}}</el-button>
+              @click="handleon(scope.$index, scope.row)">{{scope.row.state == 1?'下线':'启用'}}</el-button>
             <el-button
               size="mini"
               type="danger"
@@ -143,10 +143,10 @@
           label="类型">
           </el-table-column>
           <el-table-column
-          width="60"
+          width="80"
           label="状态">
             <template slot-scope="scope">
-              <span>{{scope.row.state == '1'?'启用中':'已下线'}}</span>
+              <span>{{scope.row.state == 1?'启用中':'已下线'}}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -163,13 +163,7 @@
          <el-button
           size="mini"
           type="success"
-          v-show="scope.row.state == '0'"
-          @click="handleon(scope.$index, scope.row)">启用</el-button>
-          <el-button
-          size="mini"
-          v-show="scope.row.state == '1'"
-          style="background:#fff;color:#000;"
-          @click="handleon(scope.$index, scope.row)">下线</el-button>
+          @click="handleon(scope.$index, scope.row)">{{scope.row.state == 1?'下线':'启用'}}</el-button>
          <el-button
           size="mini"
           type="danger"
@@ -205,7 +199,7 @@ export default {
         cateSortOptions:{},
         expands:[],
         tableData: [],
-            status: '0',
+            status:2,
             type:'0',
             typeList:[
               {value: '0',label: '全部'},
@@ -214,9 +208,9 @@ export default {
               {value: '3',label: '解决方案'}
             ],
             statusList:[
-              {value: '0',label: '全部'},
-              {value: '1',label: '启用中'},
-              {value: '2',label: '已下线'},
+              {value: 2,label: '全部'},
+              {value: 1,label: '启用中'},
+              {value: 0,label: '已下线'},
             ],
           pageNum:1,
           pageSize:10,
@@ -275,19 +269,14 @@ export default {
 
         // 更新一级类目状态
         handleon(index,row){
-          let _this = this;
-          if(row.state == '0'){
-            this.state = '1'
-          }else{
-            this.state = '0'
-          }
+          let state = Math.abs(row.state -1);
           let params ={
             id:row.id,
-            state:this.state
+            state:state
           }
           updateCateStatus(params).then(res=>{
             if(res.code == 200){
-              _this.loadFirstCate();
+              this.loadFirstCate();
             }
           })
         },
@@ -403,6 +392,10 @@ export default {
     margin-bottom: 20px;
     margin-top: 10px;
     width: 100%;
+    margin-left: 0px !important;
+  }
+  .el-col{
+    padding-right:0px !important;
   }
   .Status_type{
       display: inline-block;
