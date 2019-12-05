@@ -433,6 +433,9 @@ export default {
             width: 50%;
             float: right;
         }
+        .el-date-editor{
+            z-index: 999;
+        }
         .el-row{
             margin-bottom: 20px;
             .bg-purplp-left{
