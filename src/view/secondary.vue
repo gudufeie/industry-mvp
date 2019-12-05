@@ -44,7 +44,7 @@
             <el-col :span="12" :offset="6">
                 <div class="grid-content bg-purple" style="display:flex;justify-content:space-between">
                     <span class="status_type">类型</span>
-                    <span style="text-align:left;width:76%">{{type == '1'?'产品': type == '2'?'服务':'解决方案'}}</span>
+                    <span style="text-align:left;width:76%">{{firstTypeName}}</span>
                 </div>
             </el-col>
        </el-row>
@@ -69,6 +69,7 @@ export default {
         return{
               firstCateName:'',
               typeName: '',
+              firstTypeName:'',
               enable:'0',
               enableList:[
                   {label:'否',value:'0'},
@@ -90,6 +91,7 @@ export default {
         let firstCateInfo = this.$route.query.firstCate;
         this.firstCateName = firstCateInfo.categoryName;
         this.type = this.typeId = firstCateInfo.typeId;
+        this.firstTypeName = firstCateInfo.typeName;
         this.parentId = firstCateInfo.id;
         if(!!this.$route.query.secondCate){
             this.mode = 'edit';

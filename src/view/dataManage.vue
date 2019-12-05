@@ -2,7 +2,7 @@
     <div class="main-wrap">
         <div class="block">
             <el-date-picker
-            v-model="value1"
+            v-model="time"
             type="daterange"
             range-separator="至"
             start-placeholder="开始日期"
@@ -17,7 +17,7 @@
                             <el-input
                                 placeholder="关键词">
                             </el-input>
-                            <el-button type="primary">搜索</el-button>
+                            <el-button @click="search" type="primary">搜索</el-button>
                         </div>
                     </el-col>
                     <el-col :span="12">
@@ -342,34 +342,7 @@ export default {
     data(){
         return{
             activeName: 'first',
-            pickerOptions: {
-                shortcuts: [{
-                    text: '最近一周',
-                    onClick(picker) {
-                    const end = new Date();
-                    const start = new Date();
-                    start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-                    picker.$emit('pick', [start, end]);
-                    }
-                }, {
-                    text: '最近一个月',
-                    onClick(picker) {
-                    const end = new Date();
-                    const start = new Date();
-                    start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-                    picker.$emit('pick', [start, end]);
-                    }
-                }, {
-                    text: '最近三个月',
-                    onClick(picker) {
-                    const end = new Date();
-                    const start = new Date();
-                    start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-                    picker.$emit('pick', [start, end]);
-                    }
-                }]
-            },
-            value1: '',
+            time: '',         //查询时间
             value2: '',
             tableData: [{
                 date: '2016-05-02',
@@ -415,6 +388,10 @@ export default {
     methods:{
         handleClick(tab, event) {
             console.log(tab, event);
+        },
+
+        search(){
+            console.log('时间段',this.time)
         }
     }
 }

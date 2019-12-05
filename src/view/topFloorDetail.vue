@@ -119,8 +119,8 @@
                     <el-table-column
                     label="类目/地址">
                     <template slot-scope="scope">
-                        <el-input v-model="categoryConent" placeholder="请输入内容" v-show="isShow== scope.$index && jumpAddress=='3'"></el-input>
-                        <el-select v-model="categoryParam" placeholder="请选择" v-show="isShow== scope.$index && jumpAddress!='3'">
+                        <el-input v-model="categoryConent" placeholder="请输入内容" v-show="isShow== scope.$index && jumpAddress==hrefId"></el-input>
+                        <el-select v-model="categoryParam" placeholder="请选择" v-show="isShow== scope.$index && jumpAddress!=hrefId">
                             <el-option
                             v-for="(item,index) in categoryOptions"
                             :key="index"
@@ -128,7 +128,7 @@
                             :value="item.id" >
                             </el-option>
                         </el-select>
-                        <span v-show="!(isShow == scope.$index)">{{scope.row.categoryName}}</span>
+                        <span v-show="!(isShow == scope.$index)">{{scope.row.content}}</span>
                     </template>
                     </el-table-column>
                     <el-table-column
@@ -139,11 +139,11 @@
                             <el-option
                             v-for="(item,index) in tagOptions"
                             :key="index"
-                            :label="item"
-                            :value="item">
+                            :label="item.label"
+                            :value="item.value">
                             </el-option>
                         </el-select>
-                        <span v-show="!(isShow == scope.$index)">{{scope.row.lable}}</span>
+                        <span v-show="!(isShow == scope.$index)">{{scope.row.lable == '1'?'热标':scope.row.lable == '0'?'无':''}}</span>
                          </template>
                     </el-table-column>
                     <el-table-column
@@ -209,10 +209,14 @@ export default {
             tableData:[],
             jumpOptions:[],
             categoryOptions:[],
-            tagOptions:['热标'],
+            tagOptions:[
+                {label:'无',value:'0'},
+                {label:'热标',value:'1'}
+            ],
             getTopEditData:'',
             publicParam:'',
             initfortype:'',
+            hrefId:''
         }
     },
     created(){
@@ -230,10 +234,9 @@ export default {
     methods:{
             addRow () {
                   let newLine = {
-
                   };
                   this.tableData.push(newLine); // 移到第一行
-                   this.isShow=this.tableData.length-1
+                  this.isShow=this.tableData.length-1
 
             },
             // 初始化
@@ -260,7 +263,15 @@ export default {
                 }
                 // 获取跳转类型
                 getSecondarytype({}).then(res=>{
-                        that.jumpOptions=res.data
+                    that.jumpOptions=res.data;
+                    for(var index in that.jumpOptions){
+                        if(that.jumpOptions[index].typeName == '全部'){
+                            that.jumpOptions.splice(index,1);
+                        }
+                        if(that.jumpOptions[index].typeName == '跳转地址'){
+                            this.hrefId = that.jumpOptions[index].id;
+                        }
+                    }
                 })
                 // 获取二级类目
                 getTwoProduct({}).then(res =>{
@@ -279,11 +290,10 @@ export default {
             },
             // 二级类目编辑
             handlEdit(index,row){
-                console.log(row.content)
-                if(Number.isNaN(Number(row.content))){
+                if(!!!row.categoryTwoId){
                     this.categoryConent=row.content
                 }else{
-                    this.categoryParam=row.content
+                    this.categoryParam=row.categoryTwoId
                 }
                     this.isShow=index
                     this.jumpAddress=row.forwardType
@@ -294,7 +304,7 @@ export default {
             // 二级类目保存
             handlSave(index,row){
                 let rowId
-                if(this.jumpAddress==3){
+                if(this.jumpAddress==this.hrefId){
                     this.publicParam=this.categoryConent
                 }else{
                      this.publicParam=this.categoryParam
@@ -312,23 +322,50 @@ export default {
                     forwardType:this.jumpAddress,
                     content:this.publicParam,
                     lable:this.tagParam,
-                    sort:this.sortData
+                    sort:this.sortData,
+                    typeId:this.jumpAddress
                 }
-                 this.isShow=-1
-                    // 保存编辑的数据
-                  getTwoTopContent(params).then(res =>{
-                    //   刷新初始化的二级类目接口
-                      this.initSecondary()
-                 })
+                // 保存编辑的数据
+                getTwoTopContent(params).then(res =>{
+                    if(res.code == 200){
+                        if(this.isShow != -1){
+                            this.$message.success('修改成功')
+                        }else{
+                            this.$message.success('添加成功')
+                        }
+                        //   刷新初始化的二级类目接口
+                        this.initSecondary()
+                    }else{
+                        this.$message.warning(res.msg)
+                    }
+                })
+                this.isShow=-1
             },
             // 二级类目删除
             handleDelete(index,row){
-                    let params={
-                        id:row.id
-                    }
-                    getDeleteTopContent(params).then(res =>{
-                        this.initSecondary()
+                this.$confirm('此操作将永久删除该配置词, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    getDeleteTopContent({id: row.id}).then(res=>{
+                        if(res.code == 200){
+                            this.$message({
+                                type: 'success',
+                                message: '删除成功!'
+                            });
+                            this.initSecondary();
+                        }
+                        else{
+                            this.$message.warning(res.msg)
+                        }
                     })
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });          
+                });
             },
             // 一级类目保存
             save(){
@@ -346,9 +383,18 @@ export default {
                          id:prductId
                 }
                 editTopdata(parmas).then(res =>{
+                    if(res.code == 200){
+                        if(!!prductId){
+                            this.$message.success('添加成功')
+                        }else{
+                            this.$message.success('修改成功')
+                        }
                         this.$router.push({
-                        path:'/home',
-                    })
+                            path:'/home',
+                        })
+                    }else{
+                        this.$message.warning(res.msg)
+                    }
                 })
             },
             back(){

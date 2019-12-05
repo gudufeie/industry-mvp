@@ -475,7 +475,7 @@ export default {
         addKeywordDetail(){
             this.mode = true;
             this.tableData.push({
-                addressId:this.keywordId,
+                addressId:this.dispenseInfo.id,
                 content: '',
                 forwardType: "1",
                 id: "",
@@ -522,6 +522,7 @@ export default {
                 return false;
             }
               let params ={
+                  id:this.keywordId,
                   parentId: this.dispenseInfo.id,
                   sort: this.sort,
                   categoryTwoId: this.categoryTwoId,
@@ -532,7 +533,12 @@ export default {
 
             addEditKeywordDetail(params).then(res=>{
                 if(res.code == 200){
-                    this.$message.success('添加成功');
+                    if(!!this.keywordId){
+                        this.$message.success('修改成功');
+                    }else{
+                        this.$message.success('添加成功');
+                    }
+                    
                     this.dialogVisible = false;
                     this.getDispenseTwo(this.dispenseId);
                 }else{
@@ -611,7 +617,7 @@ export default {
         handleSubmit(index,row){
             let item = {};
             item= {
-                addressId: row.addressId,
+                addressId: this.keywordId,
                 content: row.content,
                 forwardType: row.forwardType,
                 id: row.id,
@@ -625,7 +631,11 @@ export default {
             this.$set(this.showBtn,index,false)
             addOrUpdateConfigKey(item).then(res=>{
                 if(res.code == 200){
-                    this.$message.success('添加成功');
+                    if(!!row.id){
+                        this.$message.success('修改成功');
+                    }else{
+                        this.$message.success('添加成功');
+                    }
                     this.loadAllKey(this.keywordId);
                 }else{
                     this.$message.warning(res.msg);

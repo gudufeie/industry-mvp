@@ -24,9 +24,9 @@
                  <el-select v-model="type" placeholder="请选择">
                     <el-option
                     v-for="item in typeList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
+                    :key="item.id"
+                    :label="item.typeName"
+                    :value="item.id">
                     </el-option>
                  </el-select>
                 </div>
@@ -189,7 +189,7 @@
     </div>
 </template>
 <script>
-import { loadFirstCateList, deleteCate, updateCateStatus} from '../service/getData';
+import { loadFirstCateList, deleteCate, updateCateStatus,loadCateTypes} from '../service/getData';
 import post from '../config/axios'
 import CatesortDialog from './cateSortDialog.vue';
 import qs from 'qs'
@@ -201,12 +201,7 @@ export default {
         tableData: [],
             status:2,
             type:'0',
-            typeList:[
-              {value: '0',label: '全部'},
-              {value: '1',label: '产品'},
-              {value: '2',label: '服务'},
-              {value: '3',label: '解决方案'}
-            ],
+            typeList:[],
             statusList:[
               {value: 2,label: '全部'},
               {value: 1,label: '启用中'},
@@ -224,9 +219,19 @@ export default {
            this.init()
     },
     methods: {
-        init(){
-            // API.cityGuess();
-            this.loadFirstCate();
+        init(){          
+            loadCateTypes({}).then(res=>{
+              this.typeList = res.data;
+              for(var index in this.typeList){
+                if(this.typeList[index].typeName == '全部'){
+                  this.type = this.typeList[index].id;
+                }
+                if(this.typeList[index].typeName == '跳转地址'){
+                  this.typeList.splice(index,1);
+                }
+              }
+              this.loadFirstCate();
+            })
         },
         handleEdit(index,row){
             this.$router.push({

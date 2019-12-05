@@ -41,9 +41,9 @@
                  <el-select v-model="type" placeholder="请选择">
                     <el-option
                     v-for="item in typeList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
+                    :key="item.id"
+                    :label="item.typeName"
+                    :value="item.id">
                     </el-option>
                  </el-select>
                 </div>
@@ -64,7 +64,7 @@
     </div>
 </template>
 <script>
-import {addFirstCate} from '../service/getData'
+import {addFirstCate, loadCateTypes} from '../service/getData'
 export default {
     data(){
         return{
@@ -74,12 +74,8 @@ export default {
                   {label:'否',value:0},
                   {label:'是',value:1}
               ],
-              type:'1',
-              typeList:[
-                  {label:'产品',value:'1'},
-                  {label:'服务',value:'2'},
-                  {label:'解决方案',value:'3'},
-              ],
+              type:'0',
+              typeList:[],
               mode:'add',
               cateId:''
         }
@@ -92,6 +88,14 @@ export default {
             this.enable = this.$route.query.state;
             this.cateId = this.$route.query.id;
         }
+        loadCateTypes({}).then(res=>{
+            this.typeList = res.data;
+            for(var index in this.typeList){
+                if(this.typeList[index].typeName == '跳转地址' || this.typeList[index].typeName == '全部'){
+                    this.typeList.splice(index,1);
+                }
+            }
+        })
     },
     methods:{
         // 提交添加
@@ -150,14 +154,14 @@ export default {
                 else{
                     if(this.mode = 'add'){
                         this.$message({
-                            message:'添加失败!',
-                            type: "success",
+                            message:res.msg,
+                            type: "warning",
                             center:true
                         })
                     }else{
                         this.$message({
-                            message:'修改失败!',
-                            type: "success",
+                            message:res.msg,
+                            type: "warning",
                             center:true
                         })
                     }

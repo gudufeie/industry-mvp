@@ -260,16 +260,16 @@
                                     <el-table-column
                                     label="导航名称">
                                         <template slot-scope="{row,$index}">
-                                            <el-input class="nav-input" v-if="!!showEdit[$index]  && row.categoryTwoId != '0'" v-model="row.navigationName"></el-input>
-                                            <span v-if="row.categoryTwoId == '0'">{{row.navigationName}}</span>
-                                            <span v-if="!!!showEdit[$index] && row.categoryTwoId != '0'">{{row.navigationName}}</span>
+                                            <el-input class="nav-input" v-if="!!showEdit[$index]  && !!row.categoryTwoId" v-model="row.navigationName"></el-input>
+                                            <span v-if="!!!row.categoryTwoId">{{row.navigationName}}</span>
+                                            <span v-if="!!!showEdit[$index] && !!row.categoryTwoId">{{row.navigationName}}</span>
                                         </template>
                                     </el-table-column>
                                     <el-table-column
                                     label="二级类目"
                                     width="120">
                                         <template slot-scope="{row,$index}">
-                                            <el-select class="nav-input" v-if="!!showEdit[$index] && row.categoryTwoId != '0'" v-model="row.categoryTwoId" placeholder="请选择">
+                                            <el-select class="nav-input" v-if="!!showEdit[$index] && !!row.categoryTwoId" v-model="row.categoryTwoId" placeholder="请选择">
                                                 <el-option
                                                     v-for="(item,index) in cateTwoKeywords"
                                                     :key="index"
@@ -277,17 +277,17 @@
                                                     :value="item.id">
                                                 </el-option>
                                             </el-select>
-                                            <span v-if="row.categoryTwoId == '0'">/</span>
-                                            <span v-if="!!!showEdit[$index] && row.categoryTwoId != '0'">{{row.categoryName}}</span>
+                                            <span v-if="!!!row.categoryTwoId">/</span>
+                                            <span v-if="!!!showEdit[$index] && !!row.categoryTwoId">{{row.categoryName}}</span>
                                         </template>
                                     </el-table-column>
                                     <el-table-column
                                     label="排序"
                                     width="120"> 
                                         <template slot-scope="{row,$index}">
-                                            <el-input class="nav-input" v-if="!!showEdit[$index] && row.categoryTwoId != '0'" v-model="row.sort"></el-input>
-                                            <span v-if="row.categoryTwoId == '0'">/</span>
-                                            <span v-if="!!!showEdit[$index] && row.categoryTwoId != '0'">{{row.sort}}</span>
+                                            <el-input class="nav-input" v-if="!!showEdit[$index] && !!row.categoryTwoId" v-model="row.sort"></el-input>
+                                            <span v-if="!!!row.categoryTwoId">/</span>
+                                            <span v-if="!!!showEdit[$index] && !!row.categoryTwoId">{{row.sort}}</span>
                                         </template>
                                     </el-table-column>
                                     <el-table-column
@@ -308,12 +308,12 @@
                                     label="管理"
                                     width="210">
                                         <template slot-scope="{$index,row}">
-                                            <el-button size="mini" class="disable_btn" v-if="!!!showBtn[$index]&&row.categoryTwoId == '0'" disabled="true">编辑</el-button>
-                                            <el-button size="mini" @click="navEdit($index,row)" v-if="!!!showBtn[$index] && row.categoryTwoId != '0'">编辑</el-button>
-                                            <el-button size="mini" @click="navSubmit($index,row)" v-if="!!showBtn[$index] && row.categoryTwoId != '0'">保存</el-button>
+                                            <el-button size="mini" class="disable_btn" v-if="!!!showBtn[$index] && !!!row.categoryTwoId" disabled="true">编辑</el-button>
+                                            <el-button size="mini" @click="navEdit($index,row)" v-if="!!!showBtn[$index] && !!row.categoryTwoId">编辑</el-button>
+                                            <el-button size="mini" @click="navSubmit($index,row)" v-if="!!showBtn[$index] && !!row.categoryTwoId">保存</el-button>
                                             <el-button size="mini" @click="navOnOrout($index,row)">{{row.publishState == 2?'下线':'上线'}}</el-button>
-                                            <el-button size="mini" @click="navDelete($index,row)" v-if="row.categoryTwoId != '0'">删除</el-button>
-                                            <el-button size="mini" class="disable_btn" v-if="row.categoryTwoId == '0'" disabled="true">删除</el-button>
+                                            <el-button size="mini" @click="navDelete($index,row)" v-if="!!row.categoryTwoId">删除</el-button>
+                                            <el-button size="mini" class="disable_btn" v-if="!!!row.categoryTwoId" disabled="true">删除</el-button>
                                         </template>
                                     </el-table-column>
                                 </el-table>
@@ -373,7 +373,7 @@ export default {
             addFlag:false,
             cateTwoKeywords:[],
             mode:'add',
-            categoryTwoId:'',
+            categoryTwoId:'0',
         }
     },
     created(){
@@ -391,6 +391,9 @@ export default {
                 for(var item of res.data){
                     if(item.categoryName == '行业解决方案'){
                         this.cateTwoKeywords = item.childrenList;
+                        if(this.cateTwoKeywords.length > 0){
+                            this.categoryTwoId = this.cateTwoKeywords[0]
+                        }
                         break;
                     }
                 }
@@ -575,7 +578,7 @@ export default {
 
         // 搜索解决方案
         filterSolution(){
-            this.categoryTwoId = "";
+            this.categoryTwoId = "0";
             for(var item of this.navigationList){
                 if(this.navigationId == item.id){
                     this.categoryTwoId = item.categoryTwoId;
@@ -626,10 +629,6 @@ export default {
 
         // 保存导航
         navSubmit(index,row){
-            this.showEdit[index] = false;
-            this.showBtn[index] = false;
-            this.$set(this.showEdit,index,false)
-            this.$set(this.showBtn,index,false)
             if(!!!row.navigationName){
                 this.$message.warning('请输入导航名称');
                 return false;
@@ -655,6 +654,10 @@ export default {
                     }else{
                         this.$message.success('修改成功')
                     }
+                    this.showEdit[index] = false;
+                    this.showBtn[index] = false;
+                    this.$set(this.showEdit,index,false)
+                    this.$set(this.showBtn,index,false)
                     this.getAllNav();
                 }else{
                     this.$message.warning(res.msg)
@@ -710,7 +713,7 @@ export default {
             this.navigationList.push(
                 {
                     id:'',
-                    categoryTwoId:'',
+                    categoryTwoId:this.categoryTwoId,
                     navigationName:'',
                     sort:'',
                     publishState:1

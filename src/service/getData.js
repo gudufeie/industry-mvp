@@ -6,6 +6,11 @@ export const cityGuess = () => {
     return post(baseUrl + 'common?source=xw&weather_type=forecast_1h|forecast_24h|index|alarm|limit|tips', {})
 };
 
+// 获取所有类目类型
+export const loadCateTypes = (params) => {
+    return post(baseUrl + '/product/getAllType', params);
+}
+
 // 添加一级类目
 export const addFirstCate = (params) => {
     return post(baseUrl + '/product/insertOrUpdate', params);
