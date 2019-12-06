@@ -112,9 +112,11 @@
                         width="80">
                         </el-table-column>
                         <el-table-column
-                        prop="releaseTime"
                         label="发布时间"
                         width="80">
+                            <template slot-scope="{row}">
+                                <span>{{row.releaseTime | formatDate}}</span>
+                            </template>
                         </el-table-column>
                         <el-table-column
                         label="发布状态"
@@ -238,7 +240,6 @@ export default {
         // 获取解决方案列表
         getSolutionList(){
             let params ={
-                businessId: "1",
                 categoryTwoId: this.secondCate,
                 keyWordName: this.searchName,
                 pageNum: this.pageNum,
@@ -316,10 +317,10 @@ export default {
         },
 
         handleRemove(file, fileList) {
-            console.log(file, fileList);
+            // console.log(file, fileList);
         },
         handlePreview(file) {
-            console.log(file);
+            // console.log(file);
         },
         handleExceed(files, fileList) {
             this.$message.warning(`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);

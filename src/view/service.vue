@@ -62,13 +62,25 @@
       <el-table-column type="index" label="序号" width="100"></el-table-column>
       <el-table-column prop="id" label="服务ID" width="80"></el-table-column>
       <el-table-column prop="serviceName" label="服务名称"></el-table-column>
-      <el-table-column prop="servicePrice" width="100" label="服务价格"></el-table-column>
+      <el-table-column prop="servicePrice" width="100" label="服务价格">
+        <template slot-scope="{row}">
+          <span>{{row.servicePrice == 0?'/':row.servicePrice == -1?'面议':row.servicePrice == -2?'免费':row.servicePrice}}</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="categoryOneName" width="80" label="一级类目"></el-table-column>
       <el-table-column prop="categoryTwoName" width="80" label="二级类目"></el-table-column>
       <el-table-column prop="keyWordName" label="标签"></el-table-column>
       <el-table-column prop="businessName" label="商家名称"></el-table-column>
-      <el-table-column prop="address" label="商家所在地" width="100"></el-table-column>
-      <el-table-column prop="releaseTime" label="发布时间" width="180"></el-table-column>
+      <el-table-column prop="address" label="商家所在地" width="100">
+        <template slot-scope="{row}">
+          {{row.province | getAddress}}{{row.city | getAddress}}{{row.area | getAddress}}{{row.address}}
+        </template>
+      </el-table-column>
+      <el-table-column label="发布时间" width="180">
+        <template slot-scope="{row}">
+            <span>{{row.releaseTime | formatDate}}</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="loginstatu" label="发布状态">
         <template slot-scope="{row}">
           <span>{{row.enabled == 1?'启用':'下线'}}</span>
@@ -81,7 +93,7 @@
             size="mini"
             type="success"
             @click="handleOnOrOut(scope.$index, scope.row)"
-            >{{scope.row.enabled == 0?'启用':'下线'}}
+            >{{scope.row.enabled == 1?'下线':'启用'}}
           </el-button>
           <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
         </template>
@@ -106,6 +118,7 @@
   </div>
 </template>
 <script>
+import { CodeToText } from 'element-china-area-data';
 import { loadBusiServiceList, loadAllCateList,serviceOnOutline, deleteService } from "../service/getData";
 export default {
   created() {
@@ -132,6 +145,15 @@ export default {
       searchName: "",
     };
   },
+  filters:{
+    getAddress(code){
+      let address = '';
+      if(code){
+        address = CodeToText[code];
+      }
+      return address;
+    }
+  },
   mounted(){
     this.getserviceList();
     this.getAllCates();
@@ -149,6 +171,7 @@ export default {
       }
       loadBusiServiceList(params).then(res => {
         this.serviceList = res.data.dataList;
+        this.pageTotal = res.data.totalCount;
       });
     },
 
@@ -168,15 +191,11 @@ export default {
     },
 
     handleSizeChange(val) {
-      this.pagesize = val;
-      // 重置成第一页, 开始展示
-      this.pagenum = 1;
-      // 重新渲染当前页
+      this.pageSize = val;
       this.getserviceList();
     },
     handleCurrentChange(val) {
-      this.pagenum = val;
-      // 重新渲染
+      this.pageNum = val;
       this.getserviceList();
     },
     search(){

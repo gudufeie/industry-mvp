@@ -202,7 +202,7 @@ export default{
                 categoryTwoId: "",
                 categoryTwoName: "",
                 enabled: 1,
-                forwardType: 0,
+                forwardType: 1,
                 forwardUrl: "",
                 id: "",
                 keyWordId: "",
@@ -215,7 +215,7 @@ export default{
                 releaseTime: "",
                 setCount: 0,
                 solutionCover: "",
-                solutionDescription: 2,
+                solutionDescription: '',
                 solutionName: "",
                 solutionPrice: "",
                 solutionSource: 1,
@@ -302,7 +302,6 @@ export default{
                     break;
                 }
             }
-            console.log('dafdsafsdfasdf',this.solutionDetail.categoryTwoName)
         },
 
         handleClose(tag) {
@@ -323,12 +322,12 @@ export default{
         },
 
         handleChange (value) {
-            console.log(value)
+            // console.log(value)
         },
 
         // 获取富文本框内容
         getDetail(){
-            console.log('ooooo',this.content)
+            // console.log('ooooo',this.content)
         },
 
         // 返回上一页
@@ -352,7 +351,6 @@ export default{
             return isJPG && isLt2M;
         },
         linkChange(){
-            console.log('00000000')
             this.defaultLink = this.hrefType
         },
 

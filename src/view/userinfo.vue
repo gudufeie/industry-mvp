@@ -3,10 +3,11 @@
         <div class="userinfo_title">
             <div class="user_left">
                 <div class="user_img"></div>
-                <div class="company"><span>重庆浪腾科技有限公司</span><span>企业</span><br> <span>ID：1234567</span></div>
+                <div class="company"><span>{{businessName}}</span><span>企业</span><br> <span>ID：{{businessId}}</span></div>
                 <div class="roleSelect">
-                    <el-button type="primary">客户视角</el-button>
-                    <el-button type="primary">供应商视角</el-button>
+                    <!-- <el-button type="primary">客户视角</el-button>
+                    <el-button type="primary">供应商视角</el-button> -->
+                    <business-search v-if="!enterpriseInfo.id" @getName="getBusinessName" @getBusiness="getBusinessInfo" :businessName='businessName' style="width:80%;"></business-search>
                 </div>
             </div>
             <div class="right">
@@ -329,7 +330,8 @@
                     </div>
                  </div>
                  <behavior-track v-show="activeIndex == '5'"></behavior-track>
-                 <business-info :businessInfo='providerInfo' v-show="activeIndex == '4'"></business-info>
+                 <business-info v-if="!providerDetail" :businessInfo='providerInfo' v-show="activeIndex == '4'"></business-info>
+                 <business-info v-if="providerDetail" :businessInfo='providerDetail' v-show="activeIndex == '4'"></business-info>
              </div>
              <!-- <div class="userinfo_right">
                  <span>操作</span>
@@ -349,6 +351,7 @@
 import { regionData,CodeToText } from 'element-china-area-data';
 import BehaviorTrack from "./behaviorTrack.vue";
 import BusinessInfo from "./businessInfo.vue";
+import BusinessSearch from "./businessSerach";
 import {loadUserInfo,updateUser,updateEnterpriseInfo,loadEnterpriseInfo,
         loadContactList,deleteContact,addOrupdateContact} from "@/service/getData"
 export default {
@@ -434,12 +437,16 @@ export default {
             mode:'add',
             enterpriseId:'',
             enterpriseInfo:{},
-            areaTip:''
+            areaTip:'',
+            businessId:'',
+            businessName:'',
+            providerDetail:''
         }
     },
     components:{
         BehaviorTrack,
-        BusinessInfo
+        BusinessInfo,
+        BusinessSearch
     },
     computed:{
         userInfo(){
@@ -483,14 +490,19 @@ export default {
                          this.loginRegion = CodeToText[this.userDetail.province] + CodeToText[this.userDetail.city]
                      }
                  })
-                 loadEnterpriseInfo({businessId:1}).then(res=>{
-                     this.enterpriseInfo = res.data;
-                     this.selectedArea = [res.data.province,res.data.city,res.data.area]
-                 })
-                 this.getContactList();
-                this.$store.commit('saveUserInfo','');
-                this.$local.clear('providerInfo')            
+                this.getContactList();
+                this.$store.commit('saveUserInfo','');           
             }
+            if(!!this.providerInfo){
+                loadEnterpriseInfo({businessId:this.providerInfo.id}).then(res=>{
+                     this.enterpriseInfo = res.data;
+                     this.selectedArea = [res.data.province,res.data.city,res.data.area];
+                     this.businessId = res.data.id;
+                     this.businessName = res.data.businessName;
+                 })
+                 this.$store.commit('saveProviderInfo',"")
+            }
+
         },
 
         getContactList(){
@@ -670,6 +682,16 @@ export default {
             this.$rules.validateDate(this.enterpriseInfo.businessTerm.trim(),(data)=>{
                 this.businessTermTip = data
             })
+        },
+
+        getBusinessInfo(info){
+            this.businessId = info.id;
+            this.businessName = info.value;
+            this.providerDetail = info;
+        },
+
+        getBusinessName(name){
+
         }
     }
 }
@@ -806,10 +828,17 @@ export default {
 }
 </style>
 <style>
- /* .detail_content  .el-input__inner{
-    line-height: 32px;
-    height: 32px;
-} */
+ .roleSelect{
+    width: 65px;
+}
+.roleSelect .el-input-group{
+    display: none !important;
+}
+.roleSelect .newBusiness{
+    margin-left: 0px;
+    position: relative;
+    line-height: 0px;
+}
 </style>
 
 

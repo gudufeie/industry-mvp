@@ -174,7 +174,6 @@ import { searchTag, loadAllCateList, tagsAdd} from "@//service/getData"
             getExistTags(tag){
                 this.tagsList.unshift(tag.keyWordName);
                 this.tagsIdList.unshift(tag.id);
-                console.log('选择后的',this.tagsList,this.tagsIdList)
                 var special = '';
                 for(var item of this.tagsList){
                     special = item + ',' + special;

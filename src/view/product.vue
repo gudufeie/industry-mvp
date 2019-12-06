@@ -112,7 +112,7 @@
                         label="二级类目">
                         </el-table-column>
                         <el-table-column
-                        prop="name"
+                        prop="keyWordName"
                         label="标签">
                         </el-table-column>
                         <el-table-column
@@ -126,14 +126,19 @@
                         width="120">
                         </el-table-column>
                         <el-table-column
-                        prop="address"
                         label="所在地"
                         width="120">
+                            <template slot-scope="{row}">
+                                {{row.province | getAddress}}{{row.city | getAddress}}{{row.area | getAddress}}{{row.address}}
+                            </template>
                         </el-table-column>
                         <el-table-column
                         prop="releaseTime"
                         label="发布时间"
                         width="120">
+                         <template slot-scope="{row}">
+                             <span>{{row.releaseTime | formatDate}}</span>
+                         </template>
                         </el-table-column>
                         <el-table-column
                         label="发布状态"
@@ -173,6 +178,7 @@
     </div>
 </template>
 <script>
+import { CodeToText } from 'element-china-area-data';
 import { loadAllCateList, loadProductList, productOnOrOutline, productDelete} from "@/service/getData"
 export default {
     data(){
@@ -208,6 +214,15 @@ export default {
         this.getAllCate();
         this.getProductList();
     },
+    filters:{
+        getAddress(code){
+            let address = '';
+            if(code){
+                address = CodeToText[code];
+            }
+            return address;
+        }
+    },
     methods:{
         // 改变分页页数
         handleSizeChange(){
@@ -215,7 +230,7 @@ export default {
         },
         
         // 跳转点击的页面
-        handleCurrentChange(pege){
+        handleCurrentChange(page){
             this.pageNum = page;
             this.getProductList();
         },
@@ -331,10 +346,10 @@ export default {
         },
 
         handleRemove(file, fileList) {
-            console.log(file, fileList);
+            // console.log(file, fileList);
         },
         handlePreview(file) {
-            console.log(file);
+            // console.log(file);
         },
         handleExceed(files, fileList) {
             this.$message.warning(`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);

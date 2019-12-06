@@ -117,9 +117,11 @@
                         width="80">
                         </el-table-column>
                         <el-table-column
-                        prop="address"
                         label="所在地"
                         width="100">
+                            <template slot-scope="{row}">
+                                {{row.province | getAddress}}{{row.city | getAddress}}{{row.area | getAddress}}{{row.address}}
+                            </template>
                         </el-table-column>
                         <el-table-column
                         prop="categoryOneName"
@@ -130,7 +132,7 @@
                         label="二级类目">
                         </el-table-column>
                         <el-table-column
-                        prop="special"
+                        prop="keyWordName"
                         label="标签"
                         width="80">
                         </el-table-column>
@@ -174,6 +176,7 @@
     </div>
 </template>
 <script>
+import { CodeToText } from 'element-china-area-data';
 import { loadBusinessList, loadFirstCateList, loadAllCateList, searchBusiness } from "../service/getData"
 export default {
     data(){
@@ -215,6 +218,15 @@ export default {
         loadAllCateList({}).then(res=>{
             this.firstCateList = res.data;
         })
+    },
+    filters:{
+        getAddress(code){
+            let address = '';
+            if(code){
+                address = CodeToText[code];
+            }
+            return address;
+        }
     },
     methods:{
         // 更改分页数量

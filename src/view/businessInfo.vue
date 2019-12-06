@@ -46,7 +46,7 @@
                 <el-col :span="24">
                     <div class="grid-content bg-purple">
                         <span style="margin-right:20px;">{{item.categoryOneName}}(一级类目) : </span>
-                        <span v-for="secondCate in item.childCategorys">{{secondCate.categoryOneName}}、</span>
+                        <span v-for="secondCate in item.childCategorys">{{secondCate.categoryTwoName}}、</span>
                         <span>(二级类目)</span>
                     </div>
                 </el-col>
@@ -56,7 +56,7 @@
                     <div class="grid-content bg-purple">
                         <p>
                             <span class="title">擅长 : </span>
-                            <tags-add @getNewTags="getNewTags" :tags="special" :tagsId="special" style="display:inline-block;margin-left:28px;"></tags-add>
+                            <tags-add @getNewTags="getNewTags" :tags="keyWordName" :tagsId="special" style="display:inline-block;margin-left:28px;"></tags-add>
                         </p>
                     </div>
                 </el-col>
@@ -207,14 +207,16 @@
                         </template>
                     </el-table-column>
                     <el-table-column
-                    label="价格">
+                    label="价格"
+                    width="100">
                         <template slot-scope="{row,$index}">
-                            <span v-if="!!!serviceShow[$index]">{{row.servicePrice}}</span>
+                            <span v-if="!!!serviceShow[$index]">{{row.servicePrice == 0?'空':row.servicePrice ==-1?'面议':row.servicePrice == -2?'免费':row.servicePrice}}</span>
                             <el-input v-if="!!serviceShow[$index]" v-model="row.servicePrice" @input="validatePrice(row.servicePrice)"></el-input>
                         </template>
                     </el-table-column>
                     <el-table-column
-                    label="发布时间">
+                    label="发布时间"
+                    width="160">
                         <template slot-scope="{row}">
                             <span>{{row.releaseTime}}</span>
                         </template>
@@ -268,7 +270,8 @@
                         </template>
                     </el-table-column>
                     <el-table-column
-                    label="方案报价">
+                    label="方案报价"
+                    width="100">
                         <template slot-scope="{row,$index}">
                             <span v-if="!!!solutionShow[$index]">{{row.solutionPrice}}</span>
                             <el-input v-if="!!solutionShow[$index]" v-model="row.solutionPrice" @input="validatePrice(row.solutionPrice)"></el-input>
@@ -394,7 +397,8 @@ export default{
             priceTip:'',
             allCateList:[],
             parentCategorys:[],
-            shopId:''
+            shopId:'',
+            keyWordName:''
         }
     },
     props:{
@@ -404,7 +408,6 @@ export default{
         for(var i = 0; i < this.firstCateList.length; i ++) {
             this.firstCheckedList[i] = false;
         }
-
         // 获取供应商详细信息
         if(this.businessInfo){
             this.businessId = this.businessInfo.id;
@@ -418,8 +421,9 @@ export default{
                     this.storeName = res.data[0].storeName;
                     this.settlein =res.data[0].settlein;
                     this.storeProfile = res.data[0].storeProfile;
-                    this.special = res.data[0].special;
+                    this.special = res.data[0].keyWordId;
                     this.allCateList = res.data[0].parentCategorys;
+                    this.keyWordName = res.data[0].keyWordName;
                 }
 
             })
@@ -429,7 +433,7 @@ export default{
             this.loadServiceCount();
             this.loadSolutionCount();
             this.getSolutionList();
-            this.$store.commit('saveProviderInfo',"")
+            // this.$store.commit('saveProviderInfo',"")
         }
 
         // 产品列表显示初始化
@@ -451,6 +455,13 @@ export default{
         }
 
         this.getAllCate();
+    },
+    watch:{
+        businessInfo(){
+            if(!!this.businessInfo){
+                this.businessId = this.businessInfo.id;
+            }
+        }
     },
     methods:{
         handleClose(done) {
@@ -544,7 +555,7 @@ export default{
                     var cateDict = {};
                     if(item.id == secondCate.parentId){
                         cateDict['categoryTwoId'] = secondCate.id;
-                        cateDict['categoryOneName'] = secondCate.categoryName;
+                        cateDict['categoryTwoName'] = secondCate.categoryName;
                         firstCate.childCategorys.push(cateDict);
                     }
 
@@ -579,16 +590,20 @@ export default{
         
         // 保存修改信息
         save(){
+            if(!!!this.businessId){
+                this.$message.warning('请添加新的商家');
+                return false;
+            }
             let params = {
-                businessId: '1',
+                businessId: this.businessId,
                 id: this.shopId,
                 parentCategorys: this.parentCategorys,
                 settlein: this.settlein,
-                special: this.special,
+                keyWordId: this.special,
                 storeName: this.storeName,
                 storeProfile: this.storeProfile
             }
-            if(!!this.businessId){
+            if(!!this.shopId){
                  updateStore(params).then(res=>{
                     if(res.code == 200){
                         this.$message.success('修改成功');
@@ -867,7 +882,7 @@ export default{
         },
 
         getNewTags(newTags,id){
-            this.special = newTags;
+            this.special = id;
             if(this.special.length > 0){
                 this.special = this.special.substring(0,this.special.length - 1);
             }

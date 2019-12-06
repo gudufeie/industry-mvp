@@ -135,7 +135,7 @@
                 <el-col :span="12" :offset="6">
                     <div class="grid-content bg-purple-dark status">
                         <span class="status_type title">是否启用:</span>
-                        <el-select v-model="productDetailInfo.enabled" placeholder="请选择二级类目">
+                        <el-select v-model="productDetailInfo.enabled" placeholder="请选择">
                             <el-option
                             v-for="item in statusList"
                             :key="item.value"
@@ -188,6 +188,7 @@ import BusinessSearch from "./businessSerach";
 import TagsAdd from "./tagsAdd";
 import { loadAllCateList, searchBusiness, loadProductDetail,
         productAdd, productEdit, productDelete } from "@/service/getData"
+import { async } from 'q';
 
 export default{
     data(){
@@ -212,7 +213,7 @@ export default{
                 keyWordId:'',
                 keyWordName:'',
                 productPic:'',
-                publish:'0'
+                publish:0
             },
             priceTip:'',
             content: "",
@@ -265,12 +266,6 @@ export default{
         }
     },
     mounted(){
-        if(!!this.productInfo.id){
-            this.mode = 'edit';
-            this.idShow = true;
-            this.getProductDetail(this.productInfo.id);
-            this.$store.commit('saveProductInfo','')
-        }
         this.getAllCate();
     },
     methods:{
@@ -284,6 +279,12 @@ export default{
         getAllCate(){
             loadAllCateList({}).then(res=>{
                 this.firstCateList = res.data;
+                if(!!this.productInfo.id){
+                    this.mode = 'edit';
+                    this.idShow = true;
+                    this.getProductDetail(this.productInfo.id);
+                    this.$store.commit('saveProductInfo','')
+                }
             })
         },
 
@@ -301,13 +302,19 @@ export default{
         getProductDetail(id){
             loadProductDetail({id:id}).then(res=>{
                 this.productDetailInfo = res.data;
-                this.selectedOptions=[this.productDetailInfo.province,this.productDetailInfo.city,this.productDetailInfo.area]
+                this.selectedOptions=[this.productDetailInfo.province,this.productDetailInfo.city,this.productDetailInfo.area];
+                for(var item of this.firstCateList){
+                    if(item.id == (this.productDetailInfo.categoryOneId).toString()){
+                        this.secondCateList = item.childrenList;
+                        break;
+                    }
+                }
             })
         },
 
         // 获取富文本框内容
         getDetail(){
-            console.log('ooooo',this.content)
+            // console.log('ooooo',this.content)
         },
 
         // 返回上一页
@@ -342,8 +349,9 @@ export default{
 
         // 修改和删除产品
         save(){
-            this.productDetailInfo.productPic = this.url;
-            this.productDetailInfo.publish = '0';
+            if(!this.productDetailInfo.productPic){
+                this.productDetailInfo.productPic = this.url;
+            }
             if(this.productDetailInfo.id){
                 productEdit(this.productDetailInfo).then(res=>{
                     if(res.code == 200){
@@ -368,7 +376,7 @@ export default{
         },
 
         publish(){
-            this.productDetailInfo.publish = '1';
+            this.productDetailInfo.publish = 1;
             this.save();
         },
 
@@ -431,7 +439,7 @@ export default{
             this.productDetailInfo.keyWordName = newTags;
             if(this.productDetailInfo.keyWordName.length > 0){
                 this.productDetailInfo.keyWordName = this.productDetailInfo.keyWordName.substring(0,this.productDetailInfo.keyWordName.length - 1);
-                this.productDetailInfo.keyWordId = id.substring(0,newTags.length - 1);
+                this.productDetailInfo.keyWordId = id.substring(0,id.length - 1);
             }
         }
     }

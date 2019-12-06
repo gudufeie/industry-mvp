@@ -144,7 +144,7 @@
                                 :value="item.value">
                                 </el-option>
                             </el-select>
-                            <el-input v-show="serviceDetailInfo.forwardType == '2'" v-model="serviceDetailInfo.forwardUrl" placeholder="请填写html地址"></el-input>
+                            <el-input v-show="serviceDetailInfo.forwardType == 2" v-model="serviceDetailInfo.forwardUrl" placeholder="请填写html地址"></el-input>
                         </span>
                     </div>
                 </el-col>
@@ -195,7 +195,7 @@ export default{
                 keyWordId: "",
                 keyWordName: "",
                 province: "",
-                publish: '0',
+                publish: 0,
                 releaseTime: "",
                 serviceDetail: "",
                 serviceName: "",
@@ -224,8 +224,8 @@ export default{
             keyworkId:'',
             key:{},
             hrefTypeList:[
-                {label:'固定链接',value:'1'},
-                {label:'默认(有联系方式跳转详情,无联系方式跳转站外)',value:'2'}
+                {label:'固定链接',value:1},
+                {label:'默认(有联系方式跳转详情,无联系方式跳转站外)',value:2}
             ],
             options: regionData ,
             selectedOptions: [],
@@ -308,7 +308,7 @@ export default{
 
         // 获取富文本框内容
         getDetail(){
-            console.log('ooooo',this.content)
+            // console.log('ooooo',this.content)
         },
 
         // 返回上一页
@@ -343,8 +343,9 @@ export default{
 
         // 修改和删除服务
         save(){
-            this.serviceDetailInfo.servicePic = this.url;
-            this.serviceDetailInfo.publish = 0;
+            if(!this.serviceDetailInfo.servicePic){
+                this.serviceDetailInfo.servicePic = this.url;
+            }
             if(this.serviceDetailInfo.id){
                 serviceEdit(this.serviceDetailInfo).then(res=>{
                     if(res.code == 200){
@@ -372,7 +373,7 @@ export default{
         
         // 确认发布
         publish(){
-            this.serviceDetailInfo.publish = '1';
+            this.serviceDetailInfo.publish = 1;
             this.save();
         },
 
