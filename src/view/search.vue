@@ -20,22 +20,22 @@
           >
             <el-table-column type="index" label="序号" width="50"></el-table-column>
             <el-table-column prop="hotWord" label="热搜词" width="120"></el-table-column>
-            <el-table-column prop="remark" label="备注" width="120"></el-table-column>
-            <el-table-column label="上线时间">
+            <el-table-column prop="remark" label="备注"></el-table-column>
+            <el-table-column label="上线时间" width="160">
               <template slot-scope="{row}">
                 <span>{{row.onlineTime | formatDate}}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="offlineTime" label="下线时间">
+            <el-table-column prop="offlineTime" label="下线时间" width="160">
               <template slot-scope="{row}">
                 <span v-if="!!!row.offlineTime">/</span>
                 <span v-else>{{row.offlineTime | formatDate}}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="sort" label="排序" width="80"></el-table-column>
-            <el-table-column label="发布状态" width="100">
+            <el-table-column prop="sort" label="排序" width="60"></el-table-column>
+            <el-table-column label="发布状态" width="80">
               <template slot-scope="{row}">
-                <span>{{row.enable == 1?'启用':'下线'}}</span>
+                <span>{{row.enable == 1?'已上线':'已下线'}}</span>
               </template>
             </el-table-column>
             <el-table-column prop="name" label="管理" width="210">

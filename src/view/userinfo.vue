@@ -85,7 +85,7 @@
                             <el-row type="flex" class="row-bg" justify="space-between">
                             <el-col :span="8"><div class="grid-content bg-purple"><span>注册来源 : </span><span>{{userDetail.registerSource}}</span></div></el-col>
                             <el-col :span="8"><div class="grid-content bg-purple-light"><span>最近登录时间 ：</span><span>{{userDetail.loginTime | formatDate}}</span></div></el-col>
-                            <el-col :span="8"><div class="grid-content bg-purple"><span>最近登录地区 ：</span><span>{{loginRegion}}</span></div></el-col>
+                            <el-col :span="8"><div class="grid-content bg-purple"><span>最近登录地区 ：</span><span>{{userDetail.loginRegion}}</span></div></el-col>
                         </el-row>
                             <el-row  class="row-bg" justify="space-between">
                             <el-col :span="24">
@@ -353,7 +353,8 @@ import BehaviorTrack from "./behaviorTrack.vue";
 import BusinessInfo from "./businessInfo.vue";
 import BusinessSearch from "./businessSerach";
 import {loadUserInfo,updateUser,updateEnterpriseInfo,loadEnterpriseInfo,
-        loadContactList,deleteContact,addOrupdateContact} from "@/service/getData"
+        loadContactList,deleteContact,addOrupdateContact,getBusinessInfo} from "@/service/getData"
+import { async } from 'q';
 export default {
     data(){
         return{
@@ -458,6 +459,19 @@ export default {
     },
     mounted(){
         this.getUserInfo();
+        if(!!this.providerInfo){
+            let params = {
+                businessId: this.providerInfo.id,
+                shopId: this.providerInfo.shopId
+            }
+            getBusinessInfo(params).then(res=>{
+                if(res.data.length > 0){
+                    this.businessId = res.data[0].id;
+                    this.businessName = res.data[0].businessName;
+                }
+            })
+            this.$store.commit('saveProviderInfo',"")
+        }
         for(var i = 0; i < this.contactList.length; i ++) {
             this.showEdit[i] = false;
             this.showBtn[i] = false;
@@ -479,34 +493,33 @@ export default {
             if(!!this.userInfo){
                 this.mode = 'edit';
                 this.userId = this.userInfo.id; 
-                 loadUserInfo({id:this.userId}).then(res=>{
-                     this.userDetail = res.data;
-                     this.phone = this.userDetail.moblieNo;
-                     this.email = this.userDetail.email;
-                     this.qqAccount = this.userDetail.qqId;
-                     this.wechat = this.userDetail.weixinId;
-                     this.remarks = this.userDetail.note;
-                     if(this.userDetail.province && this.userDetail.city){
-                         this.loginRegion = CodeToText[this.userDetail.province] + CodeToText[this.userDetail.city]
-                     }
-                 })
-                this.getContactList();
+                loadUserInfo({id:this.userId}).then(res=>{
+                    this.userDetail = res.data;
+                    this.phone = this.userDetail.moblieNo;
+                    this.email = this.userDetail.email;
+                    this.qqAccount = this.userDetail.qqId;
+                    this.wechat = this.userDetail.weixinId;
+                    this.remarks = this.userDetail.note;
+                    this.getEnterprise(this.userId);
+                })
                 this.$store.commit('saveUserInfo','');           
             }
-            if(!!this.providerInfo){
-                loadEnterpriseInfo({businessId:this.providerInfo.id}).then(res=>{
-                     this.enterpriseInfo = res.data;
-                     this.selectedArea = [res.data.province,res.data.city,res.data.area];
-                     this.businessId = res.data.id;
-                     this.businessName = res.data.businessName;
-                 })
-                 this.$store.commit('saveProviderInfo',"")
-            }
-
         },
 
+        // 获取用户企业信息
+        getEnterprise(userId){
+            loadEnterpriseInfo({customerId: userId}).then(res=>{
+                this.enterpriseInfo = res.data;
+                this.selectedArea = [res.data.province,res.data.city,res.data.area];
+                this.businessId = res.data.id;
+                this.businessName = res.data.businessName;
+                this.getContactList();
+            })
+        },
+        
+        // 查询联系人列表
         getContactList(){
-            loadContactList({businessId:1}).then(res=>{
+            loadContactList({businessId:this.businessId}).then(res=>{
                 this.contactList = res.data;
             })
         },
@@ -558,6 +571,7 @@ export default {
                                 type: 'success',
                                 message: '删除成功!'
                             });
+                            this.getContactList();
                         }else{
                             this.$message.warning(res.msg)
                         }
@@ -591,9 +605,9 @@ export default {
             this.addFlag = true;
             this.contactList.push({
                 id:'',
-                businessId:'1',
+                businessId:this.businessId,
                 name:'',
-                gender:1,
+                gender:'1',
                 moblieNo:'',
                 title:'',
                 weixinId:'',
