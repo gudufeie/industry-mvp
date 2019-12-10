@@ -1,4 +1,4 @@
-import { post, postList } from '../config/axios'
+import { post, postList,postForm  } from '../config/axios'
 import { baseUrl } from '../config/env'
 import { stringify } from 'querystring';
 
@@ -600,4 +600,30 @@ export const addOrupdateContact = (params) => {
 // 删除联系人
 export const deleteContact = (params) => {
     return post(baseUrl + '/businessContact/deleteContact', params)
+}
+
+// -------------------------------------数据管理--------------------------------------
+// 用户搜索
+export const userSearchList = (params) => {
+    return post(baseUrl + '/usersManager/userSearch', params)
+}
+
+// 浏览页面
+export const userPageList = (params) => {
+    return post(baseUrl + '/usersManager/userBrowsePage', params)
+}
+
+// 浏览服务
+export const userServiceList = (params) => {
+    return post(baseUrl + '/usersManager/userBrowseServiceSearch', params)
+}
+
+// 用户收藏
+export const userCollectionList = (params) => {
+    return post(baseUrl + '/usersManager/userCollectionSearch', params)
+}
+
+// 图片上传
+export const uploadPicture = (params) => {
+    return postForm(baseUrl + '/oss/uploadpic', params)
 }

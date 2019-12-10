@@ -6,7 +6,10 @@
             type="daterange"
             range-separator="至"
             start-placeholder="开始日期"
-            end-placeholder="结束日期">
+            end-placeholder="结束日期"
+            format="yyyy-MM-dd"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            @change="getDateTime()">
             </el-date-picker>
         </div>
         <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
@@ -14,9 +17,7 @@
                 <el-row :gutter="20">
                     <el-col :span="12">
                         <div class="grid-content bg-purplp-left">
-                            <el-input
-                                placeholder="关键词">
-                            </el-input>
+                            <el-input v-model="keyWord" placeholder="关键词"></el-input>
                             <el-button @click="search" type="primary">搜索</el-button>
                         </div>
                     </el-col>
@@ -49,13 +50,13 @@
                             <div class="pagination">
                                 <el-pagination
                                 background
-                                @size-change="handleSizeChange"
-                                @current-change="handleCurrentChange"
-                                :current-page="currentPage4"
+                                @size-change="searchSizeChange"
+                                @current-change="searchPageChange"
+                                :current-page="searchPageNum"
                                 :page-sizes="[10, 25, 50]"
-                                :page-size="100"
+                                :page-size="searchPageSize"
                                 layout="total, sizes, prev, pager, next, jumper"
-                                :total="400"
+                                :total="searchDataTotal"
                                 prev-text="上一页"
                                 next-text="下一页">
                                 </el-pagination>
@@ -68,9 +69,7 @@
                 <el-row :gutter="20">
                     <el-col :span="12">
                         <div class="grid-content bg-purplp-left">
-                            <el-input
-                                placeholder="关键词">
-                            </el-input>
+                            <el-input v-model="pageUrl" placeholder="URL"></el-input>
                             <el-button type="primary">搜索</el-button>
                         </div>
                     </el-col>
@@ -107,13 +106,13 @@
                             <div class="pagination">
                                 <el-pagination
                                 background
-                                @size-change="handleSizeChange"
-                                @current-change="handleCurrentChange"
-                                :current-page="currentPage4"
+                                @size-change="browseSizeChange"
+                                @current-change="browsePageChange"
+                                :current-page="browsePageNum"
                                 :page-sizes="[10, 25, 50]"
-                                :page-size="100"
+                                :page-size="browsePageSize"
                                 layout="total, sizes, prev, pager, next, jumper"
-                                :total="400"
+                                :total="browseDataTotal"
                                 prev-text="上一页"
                                 next-text="下一页">
                                 </el-pagination>
@@ -338,6 +337,7 @@
     </div>
 </template>
 <script>
+import { userSearchList,userPageList,userServiceList,userCollectionList } from "@/service/getData"
 export default {
     data(){
         return{
@@ -382,8 +382,21 @@ export default {
                 value: '选项5',
                 label: '北京烤鸭'
             }],
-            value: ''
+            value: '',
+            startTime:'',
+            endTime:'',
+            keyWord:'',
+            searchPageSize:10,
+            searchPageNum:1,
+            searchDataTotal:0,
+            pageUrl:'',
+            browsePageNum:1,
+            browsePageSize:10,
+            browseDataTotal:0,
         }
+    },
+    mounted(){
+        this.getUserSearch();
     },
     methods:{
         handleClick(tab, event) {
@@ -392,6 +405,54 @@ export default {
 
         search(){
             console.log('时间段',this.time)
+        },
+
+        // 获取时间
+        getDateTime(time){
+            this.startTime = time[0];
+            this.endTime = time[1];
+        },
+
+        // 用户搜索列表
+        getUserSearch(){
+            let params = {
+                createTime:'2019-12-10 00:00:00',
+                key: this.keyWord,
+                pageNum: this.searchPageNum,
+                pageSize: this.searchPageSize
+            }
+            userSearchList(params).then(res=>{
+
+            })
+        },
+
+        // 用户浏览页面列表
+        getBrowsePageList(){
+            let params = {
+                pageSize: this.browsePageSize,
+                pageNum: this.browsePageNum,
+                pageUrl: this.pageUrl,
+                createTime:''
+            }
+            userPageList(params).then(res=>{
+
+            })
+        },
+
+        searchSizeChange(pageSize){
+
+        },
+
+        searchPageChange(pageNmu){
+
+        },
+
+        browsePageChange(pageNum){
+
+        },
+
+        browseSizeChange(pageSize){
+
         }
     }
 }

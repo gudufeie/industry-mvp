@@ -16,11 +16,15 @@
                         :fit="fit">
                     </el-image>
                     <el-upload
+                        ref = 'upload'
                         class="avatar-uploader"
-                        action="https://jsonplaceholder.typicode.com/posts/"
+                        action="no"
                         :show-file-list="false"
                         :on-success="handleAvatarSuccess"
-                        :before-upload="beforeAvatarUpload">
+                        :before-upload="beforeAvatarUpload"
+                        :on-change="addFile"
+                        :http-request="uploadOk"
+                        :auto-upload="false">
                         <img v-if="imageUrl" :src="imageUrl" class="avatar">
                         <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                     </el-upload>
@@ -191,7 +195,8 @@ import { regionData } from 'element-china-area-data';
 import { VueEditor, Quill } from "vue2-editor";
 import BusinessSearch from "./businessSerach";
 import TagsAdd from "./tagsAdd";
-import { loadSolutionDetail, solutionUpdate,loadAllCateList, solutionAdd, solutionDelete } from "@/service/getData"
+import { loadSolutionDetail, solutionUpdate,loadAllCateList,
+        solutionAdd, solutionDelete, uploadPicture } from "@/service/getData"
 
 export default{
     data(){
@@ -340,13 +345,14 @@ export default{
         },
         beforeAvatarUpload(file) {
             const isJPG = file.type === 'image/jpeg';
-            const isLt2M = file.size / 1024 / 1024 < 2;
+            const isPNG = file.type === 'image/png';
+            const isLt2M = file.size / 1024 < 30;
 
-            // if (!isJPG) {
-            // this.$message.error('上传头像图片只能是 JPG 或者 PNG 格式!');
-            // }
+            if (!isJPG && !isPNG) {
+                this.$message.error('上传图片只能是 JPG 或者 PNG 格式!');
+            }
             if (!isLt2M) {
-            this.$message.error('上传头像图片大小不能超过 2MB!');
+            this.$message.error('上传头像图片大小不能超过 30k!');
             }
             return isJPG && isLt2M;
         },
@@ -375,8 +381,7 @@ export default{
         },
 
         // 保存
-        save(){
-            this.solutionDetail.solutionCover = this.url;
+        save(){;
             this.solutionDetail.solutionSource = 2;
             if(this.mode == 'edit'){
                 solutionUpdate(this.solutionDetail).then(res=>{
@@ -420,6 +425,25 @@ export default{
             }).catch(() => {
                 this.$message.info('已取消删除')         
             });
+        },
+
+        addFile(file){
+            this.$refs.upload.submit();
+        },
+
+        uploadOk(val){
+            let formData = new FormData();
+            formData.append('excelFile',val.file);
+            formData.append('mark',3);
+            formData.append('oldpath',this.solutionDetail.solutionCover);
+            uploadPicture(formData).then(res=>{
+                if(res.code == 200){
+                    this.$message.success('上传成功');
+                    this.solutionDetail.solutionCover = res.data;
+                }else{
+                    this.$message.warning(res.msg)
+                }
+            })
         }
     }
 }

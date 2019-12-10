@@ -17,11 +17,15 @@
                             :fit="fit">
                         </el-image>
                         <el-upload
+                            ref = 'upload'
                             class="avatar-uploader"
-                            action="https://jsonplaceholder.typicode.com/posts/"
+                            action="no"
                             :show-file-list="false"
                             :on-success="handleAvatarSuccess"
-                            :before-upload="beforeAvatarUpload">
+                            :before-upload="beforeAvatarUpload"
+                            :on-change="addFile"
+                            :http-request="uploadOk"
+                            :auto-upload="false">
                             <img v-if="imageUrl" :src="imageUrl" class="avatar">
                             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                         </el-upload>
@@ -173,7 +177,8 @@ import { regionData } from 'element-china-area-data';
 import { VueEditor, Quill } from "vue2-editor";
 import BusinessSearch from "./businessSerach";
 import TagsAdd from "./tagsAdd";
-import { loadAllCateList, searchBusiness, loadServiceDetail, serviceAdd, serviceEdit } from "@/service/getData"
+import { loadAllCateList, searchBusiness, loadServiceDetail, serviceAdd,
+        serviceEdit, uploadPicture } from "@/service/getData"
 
 export default{
     data(){
@@ -430,6 +435,25 @@ export default{
                 this.serviceDetailInfo.keyWordName = this.serviceDetailInfo.keyWordName.substring(0,this.serviceDetailInfo.keyWordName.length - 1);
                 this.serviceDetailInfo.keyWordId = this.serviceDetailInfo.keyWordId.substring(0,this.serviceDetailInfo.keyWordId.length - 1);
             }
+        },
+
+        addFile(file){
+            this.$refs.upload.submit();
+        },
+
+        uploadOk(val){
+            let formData = new FormData();
+            formData.append('excelFile',val.file);
+            formData.append('mark',2);
+            formData.append('oldpath',this.serviceDetailInfo.servicePic);
+            uploadPicture(formData).then(res=>{
+                if(res.code == 200){
+                    this.$message.success('上传成功');
+                    this.serviceDetailInfo.servicePic = res.data;
+                }else{
+                    this.$message.warning(res.msg)
+                }
+            })
         }
     }
 }

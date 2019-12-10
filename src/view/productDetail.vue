@@ -9,23 +9,29 @@
                     </div>
                 </el-col>
                 <el-col :span="12" :offset="6">
-                    <div class="grid-content bg-purple-dark">
-                        <span class="status_type title">产品首图<span class="star">*</span>:</span>
-                        <el-image
-                            style="width: 100px; height: 100px"
-                            :src="productDetailInfo.productPic"
-                            :fit="fit">
-                        </el-image>
-                        <el-upload
-                            class="avatar-uploader"
-                            action="https://jsonplaceholder.typicode.com/posts/"
-                            :show-file-list="false"
-                            :on-success="handleAvatarSuccess"
-                            :before-upload="beforeAvatarUpload">
-                            <img v-if="imageUrl" :src="imageUrl" class="avatar">
-                            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                        </el-upload>
-                    </div>
+                    <el-form ref="form" enctype="multipart/form-data">
+                        <div class="grid-content bg-purple-dark">
+                            <span class="status_type title">产品首图<span class="star">*</span>:</span>
+                            <el-image
+                                style="width: 100px; height: 100px"
+                                :src="productDetailInfo.productPic"
+                                :fit="fit">
+                            </el-image>
+                            <el-upload
+                                ref = 'upload'
+                                class="avatar-uploader"
+                                action="no"
+                                :show-file-list="false"
+                                :on-success="handleAvatarSuccess"
+                                :before-upload="beforeAvatarUpload"
+                                :on-change="addFile"
+                                :http-request="uploadOk"
+                                :auto-upload="false">
+                                <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                            </el-upload>
+                        </div>
+                    </el-form>
                 </el-col>
                 <el-col :span="12" :offset="6">
                     <div class="grid-content bg-purple-dark">
@@ -187,12 +193,13 @@ import { VueEditor, Quill } from "vue2-editor";
 import BusinessSearch from "./businessSerach";
 import TagsAdd from "./tagsAdd";
 import { loadAllCateList, searchBusiness, loadProductDetail,
-        productAdd, productEdit, productDelete } from "@/service/getData"
+        productAdd, productEdit, productDelete, uploadPicture } from "@/service/getData"
 import { async } from 'q';
 
 export default{
     data(){
         return{
+            form:{},
             productDetailInfo:{
                 categoryOneId:'',
                 categoryTwoId:'',
@@ -263,7 +270,7 @@ export default{
     computed:{
         productInfo(){
             return this.$store.state.productInfo;
-        }
+        },
     },
     mounted(){
         this.getAllCate();
@@ -331,20 +338,15 @@ export default{
             const isLt2M = file.size / 1024 < 30;
 
             if (!isJPG && !isPNG) {
-                this.$message.error('上传头像图片只能是 JPG 或者 PNG 格式!');
+                this.$message.error('上传图片只能是 JPG 或者 PNG 格式!');
             }
             if (!isLt2M) {
-                this.$message.error('上传头像图片大小不能超过 30k!');
+                this.$message.error('上传图片大小不能超过 30k!');
             }
             return isJPG && isLt2M;
         },
         linkChange(){
             this.defaultLink = this.hrefType
-        },
-
-        // 查询标签
-        getTag(){
-
         },
 
         // 修改和删除产品
@@ -441,6 +443,25 @@ export default{
                 this.productDetailInfo.keyWordName = this.productDetailInfo.keyWordName.substring(0,this.productDetailInfo.keyWordName.length - 1);
                 this.productDetailInfo.keyWordId = id.substring(0,id.length - 1);
             }
+        },
+
+        addFile(file){
+            this.$refs.upload.submit();
+        },
+
+        uploadOk(val){
+            let formData = new FormData();
+            formData.append('excelFile',val.file);
+            formData.append('mark',1);
+            formData.append('oldpath',this.productDetailInfo.productPic);
+            uploadPicture(formData).then(res=>{
+                if(res.code == 200){
+                    this.$message.success('上传成功');
+                    this.productDetailInfo.productPic = res.data;
+                }else{
+                    this.$message.warning(res.msg)
+                }
+            })
         }
     }
 }

@@ -119,13 +119,13 @@ export default {
             tableData:[],
             userRole:'',
             userRoles:[
-                {label:'全部',value:0},
+                {label:'全部',value:''},
                 {label:'客户',value:1},
                 {label:'供应商',value:2}
             ],
             userType:'',
             userTypes:[
-                {label:'全部',value:0},
+                {label:'全部',value:''},
                 {label:'企业',value:1},
                 {label:'个人',value:2}
             ],
